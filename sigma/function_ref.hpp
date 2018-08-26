@@ -24,7 +24,15 @@ private:
     }
 
     void*         m_instance{nullptr};
-    callback_type m_callback{&FunctionRef::default_uninit};
+    callback_type m_callback{FunctionRef::default_uninit};
+
+private:
+    /**
+     * constructor for the member functions
+     */
+    constexpr FunctionRef(void* obj, callback_type cb) noexcept
+        : m_instance{obj}, m_callback{cb}
+    {}
 
 public:
     constexpr FunctionRef() noexcept = default;
@@ -41,7 +49,9 @@ public:
     constexpr FunctionRef(const FunctionRef&) noexcept = default;
     constexpr FunctionRef& operator=(const FunctionRef&) noexcept = default;
     template<typename Callable,
-             std::enable_if_t<std::is_invocable_v<Callable, Args...>, int> = 0>
+             std::enable_if_t<std::is_invocable_v<Callable, Args...> &&
+                                  !std::is_function_v<Callable>,
+                              int> = 0>
     constexpr explicit FunctionRef(Callable& callable) noexcept
         : m_instance{std::addressof(callable)},
           m_callback([](void* obj, Args... args) -> return_type {
@@ -75,49 +85,50 @@ public:
         return std::invoke(m_callback, m_instance, std::forward<Args>(args)...);
     }
 
-    constexpr operator bool() const noexcept;
-
-    template<auto MemFn, typename T>
-    static constexpr std::enable_if_t<std::is_class_v<T>, FunctionRef>
-    member_fn(T* obj)
+    constexpr operator bool() const noexcept
     {
-        static_assert(std::is_member_function_pointer_v<decltype(MemFn)>,
-                      "Template argument must be a member function");
-        static_assert(std::is_base_of_v<
-                          std::decay_t<typename sigma::get_class_from_mem_fn<
-                              decltype(MemFn)>::type>,
-                          std::decay_t<T>>,
-                      "Member function class is not a base of T");
-        static_assert(std::is_invocable_v<decltype(MemFn), T, Args...>,
-                      "Member function is not invocable on object of type T");
-
-        FunctionRef res;
-
-        if constexpr (std::is_const_v<T>)
-        {
-            res.m_instance = const_cast<std::remove_const_t<T>*>(obj);
-        }
-        else
-        {
-            res.m_instance = obj;
-        }
-
-        res.m_callback = [](void* obj, Args... args) -> return_type {
-            auto tobj         = static_cast<T*>(obj);
-            using mem_fn_type = decltype(MemFn);
-            auto mem_fn       = MemFn;
-            return std::invoke(mem_fn, tobj, std::forward<Args>(args)...);
-        };
-
-        return res;
+        return m_callback != default_uninit;
     }
 
+    /**
+     * create a function reference to a member function
+     * the function reference can be created as follows
+     * sigma::FunctionRef<Signature>::member_fn<&class::mem_fn>(instance);
+     */
     template<auto MemFn, typename T>
     static constexpr std::enable_if_t<std::is_class_v<T>, FunctionRef>
     member_fn(T& obj)
     {
-        return member_fn<MemFn>(std::addressof(obj));
+        static_assert(std::is_member_function_pointer_v<decltype(MemFn)>,
+                      "Template argument must be a member function");
+        static_assert(
+            std::is_base_of_v<
+                typename sigma::get_class_from_mem_fn<decltype(MemFn)>::type,
+                std::remove_reference_t<T>>,
+            "Member function class is not a base of T");
+        static_assert(std::is_invocable_v<decltype(MemFn), T, Args...>,
+                      "Member function is not invocable on object of type T");
+
+        return FunctionRef{
+            static_cast<void*>(
+                const_cast<std::remove_const_t<T>*>(std::addressof(obj))),
+            [](void* obj, Args... args) -> return_type {
+                auto& instance = *static_cast<T*>(obj);
+                auto  mem_fn   = MemFn;
+                return std::invoke(
+                    mem_fn, instance, std::forward<Args>(args)...);
+            }};
     }
-};
+
+    /**
+     * convenience function for pointers
+     */
+    template<auto MemFn, typename T>
+    static constexpr std::enable_if_t<std::is_class_v<T>, FunctionRef>
+    member_fn(T* obj)
+    {
+        return member_fn<MemFn>(*obj);
+    }
+}; // namespace sigma
 
 } // namespace sigma

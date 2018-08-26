@@ -8,6 +8,11 @@ int test_func(int i)
     return ++i;
 }
 
+int test_func_nothrow(int i) noexcept
+{
+    return ++i;
+}
+
 struct foo
 {
     int i{5};
@@ -78,6 +83,28 @@ TEST_CASE("FunctionRef")
         auto const_mem_fn_ptr =
             sigma::FunctionRef<int()>::member_fn<&foo::const_fun>(&b);
         REQUIRE(const_mem_fn_ptr() == 10);
+
+        static_assert(
+            std::is_invocable_v<decltype(
+                sigma::FunctionRef<int()>::member_fn<&foo::const_fun>(g))>);
+    }
+
+    SECTION("operator bool")
+    {
+        sigma::FunctionRef<int(int)> valid{test_func};
+        REQUIRE(valid);
+        REQUIRE_FALSE(uninitialized);
+    }
+
+    SECTION("noexcept")
+    {
+        sigma::FunctionRef<int(int)> throwing_fn{test_func};
+        sigma::FunctionRef<int(int)> nothrow_fn{test_func_nothrow};
+
+        static_assert(!std::is_nothrow_invocable_v<decltype(throwing_fn), int>);
+        // maybe some day
+        // static_assert(std::is_nothrow_invocable_v<decltype(nothrow_fn),
+        // int>);
     }
 
     SECTION("void return"){
