@@ -25,6 +25,11 @@ struct foo
         return i;
     }
 
+    constexpr int operator()(int j) const
+    {
+        return j;
+    }
+
     constexpr long bar(long l)
     {
         return i + l;
@@ -34,6 +39,13 @@ struct foo
     {
         return 10;
     }
+
+    /*
+        constexpr int const_fun()
+        {
+            return 5;
+        }
+        */
 };
 
 TEST_CASE("FunctionRef")
@@ -61,6 +73,12 @@ TEST_CASE("FunctionRef")
 
         REQUIRE(functor(5) == 10);
         REQUIRE(f.i == 10); // make sure it wasn't moved or anything
+
+        const foo                    g{};
+        sigma::FunctionRef<int(int)> const_functor{g};
+
+        REQUIRE(const_functor(5) == 5);
+        REQUIRE(g.i == 5);
     }
 
     SECTION("member function")
@@ -84,9 +102,16 @@ TEST_CASE("FunctionRef")
             sigma::FunctionRef<int()>::member_fn<&foo::const_fun>(&b);
         REQUIRE(const_mem_fn_ptr() == 10);
 
-        static_assert(
-            std::is_invocable_v<decltype(
-                sigma::FunctionRef<int()>::member_fn<&foo::const_fun>(g))>);
+        // will call the non const version and return 5;
+        auto nonconst_fun =
+            sigma::FunctionRef<int()>::member_fn<&foo::const_fun>(g);
+
+        REQUIRE(nonconst_fun() == 5);
+
+        static_assert(sigma::is_const_member_function_pointer<decltype(
+                          &foo::const_fun)>::value);
+        static_assert(!sigma::is_const_member_function_pointer<decltype(
+                          &foo::bar)>::value);
     }
 
     SECTION("operator bool")
