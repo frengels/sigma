@@ -85,4 +85,14 @@ struct get_class_from_mem_fn<Ret (T::*)(Args...) const>
 {
     using type = T;
 };
+
+template<typename Signature>
+struct is_const_member_function_pointer : public std::false_type
+{};
+
+template<typename T, typename Ret, typename... Args>
+struct is_const_member_function_pointer<Ret (T::*)(Args...) const>
+    : public std::true_type
+{};
+
 } // namespace sigma
