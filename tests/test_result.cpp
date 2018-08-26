@@ -49,7 +49,14 @@ sigma::Result<int> nothing_under_zero(int i)
 {
     if (i < 0)
     {
-        return {std::logic_error("I said nothing under 0")};
+        try
+        {
+            throw std::logic_error("I said nothing under 0");
+        }
+        catch (...)
+        {
+            return std::current_exception();
+        }
     }
 
     return {i};
@@ -60,18 +67,29 @@ TEST_CASE("Result")
     std::logic_error except{"this could've been avoided"};
 
     sigma::Result<int> valid{5};
-    sigma::Result<int> invalid{except};
+    sigma::Result<int> invalid{std::invoke([]() -> std::exception_ptr {
+        try
+        {
+            throw std::logic_error{"this could've been avoided"};
+        }
+        catch (...)
+        {
+            return std::current_exception();
+        }
+    })};
 
     SECTION("has_value")
     {
         REQUIRE(valid.has_value());
-        REQUIRE(!invalid.has_value());
+        REQUIRE(valid);
+        REQUIRE_FALSE(invalid.has_value());
+        REQUIRE_FALSE(invalid);
     }
 
     SECTION("get value")
     {
-        REQUIRE(*valid == 5);
-        REQUIRE_THROWS_AS(invalid.value(), sigma::BadResultAccess);
+        REQUIRE(valid.value() == 5);
+        REQUIRE_THROWS_AS(invalid.value(), std::logic_error);
         REQUIRE(invalid.value_or(10) == 10);
     }
 
@@ -111,5 +129,27 @@ TEST_CASE("Result")
 
         REQUIRE(res2_moved.copy == 0);
         REQUIRE(res2_moved.move == 1);
+    }
+
+    SECTION("rethrow")
+    {
+        auto generate_exception_ptr = [](auto obj) -> std::exception_ptr {
+            try
+            {
+                throw obj;
+            }
+            catch (...)
+            {
+                return std::current_exception();
+            }
+        };
+
+        // result with thrown 5
+        sigma::Result<int> thrown5{generate_exception_ptr(5)};
+
+        REQUIRE_FALSE(thrown5);
+
+        REQUIRE_THROWS_AS(thrown5.try_rethrow(), int);
+        REQUIRE_THROWS_AS(thrown5.value(), int);
     }
 }

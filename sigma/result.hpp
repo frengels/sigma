@@ -1,16 +1,11 @@
 #pragma once
 
+#include <exception>
 #include <stdexcept>
 #include <string>
 
 namespace sigma
 {
-class BadResultAccess : public std::logic_error {
-public:
-    BadResultAccess() : std::logic_error{"bad result access"}
-    {}
-};
-
 template<typename T>
 class Result final {
 public:
@@ -21,8 +16,8 @@ private:
 
     union
     {
-        T           m_ok;
-        std::string m_error;
+        T                  m_ok;
+        std::exception_ptr m_error;
     };
 
 public:
@@ -35,7 +30,7 @@ public:
         std::enable_if_t<
             std::is_constructible_v<T, U&&> && std::is_convertible_v<U&&, T> &&
                 !std::is_same_v<std::decay_t<U>, std::in_place_t> &&
-                !std::is_convertible_v<std::decay_t<U>, std::exception>,
+                !std::is_same_v<std::decay_t<U>, std::exception_ptr>,
             int> = 0>
     constexpr Result(U&& val) : m_ok{std::forward<U>(val)}
     {}
@@ -45,7 +40,7 @@ public:
         std::enable_if_t<
             std::is_constructible_v<T, U&&> && !std::is_convertible_v<U&&, T> &&
                 !std::is_same_v<std::decay_t<U>, std::in_place_t> &&
-                !std::is_convertible_v<std::decay_t<U>, std::exception>,
+                !std::is_same_v<std::decay_t<U>, std::exception_ptr>,
             int> = 0>
     constexpr explicit Result(U&& val) : m_ok{std::forward<U>(val)}
     {}
@@ -59,15 +54,14 @@ public:
     /**
      * constructs a result from an exception when the result is invalid
      */
-    constexpr Result(const std::exception& e)
-        : m_exceptional{true}, m_error{e.what()}
+    constexpr Result(std::exception_ptr e) : m_exceptional{true}, m_error{e}
     {}
 
     ~Result()
     {
         if (m_exceptional)
         {
-            m_error.~basic_string();
+            m_error.~exception_ptr();
         }
         else
         {
@@ -85,47 +79,36 @@ public:
         return has_value();
     }
 
-    constexpr T& operator*() & noexcept
+    constexpr T* operator->() noexcept(false)
     {
-        return m_ok;
-    }
+        if (m_exceptional)
+        {
+            rethrow();
+        }
 
-    constexpr const T& operator*() const& noexcept
-    {
-        return m_ok;
-    }
-
-    constexpr T&& operator*() && noexcept
-    {
-        return std::move(m_ok);
-    }
-
-    constexpr const T&& operator*() const&& noexcept
-    {
-        return std::move(m_ok);
-    }
-
-    constexpr T* operator->() noexcept
-    {
         return std::addressof(m_ok);
     }
 
-    constexpr const T* operator->() const noexcept
+    constexpr const T* operator->() const noexcept(false)
     {
+        if (m_exceptional)
+        {
+            rethrow();
+        }
         return std::addressof(m_ok);
     }
 
     template<typename U>
     constexpr T value_or(U&& default_val) &&
     {
-        return has_value() ? std::move(**this) :
+        return has_value() ? std::move(this->m_ok) :
                              static_cast<T>(std::forward<U>(default_val));
     }
 
     template<typename U>
     constexpr T value_or(U&& default_val) const&
     {
-        return has_value() ? **this :
+        return has_value() ? this->m_ok :
                              static_cast<T>(std::forward<U>(default_val));
     }
 
@@ -133,60 +116,51 @@ public:
     {
         if (m_exceptional)
         {
-            throw BadResultAccess{};
+            rethrow();
         }
 
-        return **this;
+        return this->m_ok;
     }
 
     constexpr const T& value() const&
     {
         if (m_exceptional)
         {
-            throw BadResultAccess{};
+            rethrow();
         }
 
-        return **this;
+        return this->m_ok;
     }
 
     constexpr T&& value() &&
     {
         if (m_exceptional)
         {
-            throw BadResultAccess{};
+            rethrow();
         }
 
-        return std::move(**this);
+        return std::move(this->m_ok);
     }
 
     constexpr const T&& value() const&&
     {
         if (m_exceptional)
         {
-            throw BadResultAccess{};
+            rethrow();
         }
 
-        return std::move(**this);
+        return std::move(this->m_ok);
     }
 
-    constexpr std::string& error() &
+    void try_rethrow()
     {
-        return m_error;
+        if (m_exceptional)
+        {
+            rethrow();
+        }
     }
 
-    constexpr const std::string& error() const&
-    {
-        return m_error;
-    }
-
-    constexpr std::string&& error() &&
-    {
-        return std::move(m_error);
-    }
-
-    constexpr const std::string&& error() const&&
-    {
-        return std::move(m_error);
-    }
+private:
+    [[noreturn]] void rethrow() { std::rethrow_exception(m_error); }
 };
 } // namespace sigma
