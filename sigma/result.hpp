@@ -54,7 +54,8 @@ public:
     /**
      * constructs a result from an exception when the result is invalid
      */
-    constexpr Result(std::exception_ptr e) : m_exceptional{true}, m_error{e}
+    constexpr Result(const std::exception_ptr& e)
+        : m_exceptional{true}, m_error{e}
     {}
 
     ~Result()
