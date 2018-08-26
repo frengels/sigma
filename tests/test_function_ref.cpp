@@ -71,12 +71,14 @@ TEST_CASE("FunctionRef")
         foo                          f{};
         sigma::FunctionRef<int(int)> functor{f};
 
+        // using the non const operator()
         REQUIRE(functor(5) == 10);
         REQUIRE(f.i == 10); // make sure it wasn't moved or anything
 
         const foo                    g{};
         sigma::FunctionRef<int(int)> const_functor{g};
 
+        // using the operator() const
         REQUIRE(const_functor(5) == 5);
         REQUIRE(g.i == 5);
     }
