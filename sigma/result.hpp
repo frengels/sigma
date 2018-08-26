@@ -30,27 +30,28 @@ public:
      * constructs a result from a type U if T can be constructed from U. If U
      * can not be converted to T then this constructor must be explicitly called
      */
-    template<typename U,
-             typename std::enable_if<
-                 std::is_constructible<T, U&&>::value &&
-                     std::is_convertible<U&&, T>::value &&
-                     !std::is_convertible<U&&, std::exception>::value,
-                 int>::type = 0>
+    template<
+        typename U,
+        std::enable_if_t<
+            std::is_constructible_v<T, U&&> && std::is_convertible_v<U&&, T> &&
+                !std::is_same_v<std::decay_t<U>, std::in_place_t> &&
+                !std::is_convertible_v<std::decay_t<U>, std::exception>,
+            int> = 0>
     constexpr Result(U&& val) : m_ok{std::forward<U>(val)}
     {}
 
-    template<typename U,
-             typename std::enable_if<
-                 std::is_constructible<T, U&&>::value &&
-                     !std::is_convertible<U&&, T>::value &&
-                     !std::is_convertible<U&&, std::exception>::value,
-                 int>::type = 0>
+    template<
+        typename U,
+        std::enable_if_t<
+            std::is_constructible_v<T, U&&> && !std::is_convertible_v<U&&, T> &&
+                !std::is_same_v<std::decay_t<U>, std::in_place_t> &&
+                !std::is_convertible_v<std::decay_t<U>, std::exception>,
+            int> = 0>
     constexpr explicit Result(U&& val) : m_ok{std::forward<U>(val)}
     {}
 
     template<typename... Args,
-             typename std::enable_if<std::is_constructible<T, Args...>::value,
-                                     int>::type = 0>
+             std::enable_if_t<std::is_constructible_v<T, Args...>, int> = 0>
     constexpr Result(std::in_place_t, Args&&... args)
         : m_ok{std::forward<Args>(args)...}
     {}
@@ -67,6 +68,10 @@ public:
         if (m_exceptional)
         {
             m_error.~basic_string();
+        }
+        else
+        {
+            m_ok.~T();
         }
     }
 
