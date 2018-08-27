@@ -123,6 +123,38 @@ struct foo
     {}
 };
 
+int bar()
+{
+    return 0;
+}
+
+/* guess it's not part of the function pointer type system
+int bar() noexcept
+{
+    return 1;
+}
+*/
+
+struct Overloaded
+{
+    int foo()
+    {
+        return 0;
+    }
+    int foo() const
+    {
+        return 1;
+    }
+    int foo() volatile
+    {
+        return 2;
+    }
+    int foo() const volatile
+    {
+        return 3;
+    }
+};
+
 TEST_CASE("FunctionTraits")
 {
     SECTION("IsFunction")
@@ -152,6 +184,21 @@ TEST_CASE("FunctionTraits")
         CHECK(sigma::IsConstFunctionV<decltype(&foo::nrv_var_cv)>);
     }
 
+    SECTION("signature")
+    {
+        CHECK(std::is_same_v<void() & noexcept,
+                             sigma::FunctionSignatureT<decltype(&foo::nlv)>>);
+    }
+
     SECTION("selecting overloads")
-    {}
+    {
+        // CHECK(sigma::Overload<int() noexcept>{bar}() == 1);
+    }
+
+    SECTION("class from mem_fn")
+    {
+        CHECK(std::is_same_v<
+              foo,
+              sigma::MemberFunctionPointerClassT<decltype(&foo::nrv_cv)>>);
+    }
 }

@@ -1029,4 +1029,64 @@ struct IsMemberFunctionPointer<Signature(T::*)>
 template<typename Signature>
 inline constexpr bool IsMemberFunctionPointerV =
     IsMemberFunctionPointer<Signature>::value;
+
+// member function pointer class
+
+template<typename Signature>
+struct MemberFunctionPointerClass;
+
+template<typename T, typename Signature>
+struct MemberFunctionPointerClass<Signature(T::*)>
+{
+    using type = T;
+};
+
+template<typename Signature>
+using MemberFunctionPointerClassT =
+    typename MemberFunctionPointerClass<Signature>::type;
+
+template<typename Signature>
+struct FunctionSignature;
+
+template<typename Signature>
+struct FunctionSignature<Signature(*)>
+{
+    using type = Signature;
+};
+
+template<typename Signature>
+struct FunctionSignature<Signature(&)>
+{
+    using type = Signature;
+};
+
+template<typename T, typename Signature>
+struct FunctionSignature<Signature(T::*)>
+{
+    using type = Signature;
+};
+
+template<typename Signature>
+using FunctionSignatureT = typename sigma::FunctionSignature<Signature>::type;
+
+// get nth argument
+// TODO
+
+// selecting overloads
+
+template<typename Signature>
+struct Overload
+{
+    using function_ptr_type = Signature(*);
+
+    function_ptr_type value;
+
+    constexpr Overload(Signature(*f)) : value{f}
+    {}
+    constexpr Overload(Signature(&f)) : value{f}
+    {}
+    constexpr Overload(Signature f) : value{f}
+    {}
+};
+
 } // namespace sigma
