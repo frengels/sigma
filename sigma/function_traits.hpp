@@ -5,32 +5,6 @@
 
 namespace sigma
 {
-template<typename...>
-struct FunctionTraits;
-
-template<typename R, typename... Args>
-struct FunctionTraits<R(Args...)>
-{
-    using return_type            = R;
-    static constexpr size_t size = sizeof...(Args);
-
-    template<size_t Num>
-    struct Arg
-    {
-        using type =
-            typename std::tuple_element<Num, std::tuple<Args...>>::type;
-    };
-};
-
-template<typename R, typename... Args>
-struct FunctionTraits<R (*)(Args...)> : public FunctionTraits<R(Args...)>
-{};
-
-template<typename R, typename... Args>
-struct FunctionTraits<std::function<R(Args...)>>
-    : public FunctionTraits<R(Args...)>
-{};
-
 template<typename Returned, typename Required>
 struct is_convertible_return
     : public std::integral_constant<
@@ -95,4 +69,964 @@ struct is_const_member_function_pointer<Ret (T::*)(Args...) const>
     : public std::true_type
 {};
 
+// generic false_type
+template<typename Signature>
+struct IsFunction : public std::false_type
+{};
+
+// normal functions
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...)> : public std::true_type
+{};
+
+// variadic
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......)> : public std::true_type
+{};
+
+// cv qualifiers
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) volatile> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const volatile> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) volatile> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const volatile> : public std::true_type
+{};
+
+// ref qualifiers
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...)&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......)&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) &&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) &&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const volatile&&> : public std::true_type
+{};
+
+// noexcept qualifiers
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) volatile noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const volatile noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) volatile noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) & noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) volatile& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const volatile& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) & noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) volatile& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) && noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const&& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) volatile&& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args...) const volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) && noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const&& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) volatile&& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsFunction<Ret(Args......) const volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Signature>
+struct IsFunction<Signature(*)> : public sigma::IsFunction<Signature>
+{};
+
+template<typename Signature>
+struct IsFunction<Signature(&)> : public sigma::IsFunction<Signature>
+{};
+
+template<typename T, typename Signature>
+struct IsFunction<Signature(T::*)> : public sigma::IsFunction<Signature>
+{};
+
+template<typename Signature>
+inline constexpr bool IsFunctionV = IsFunction<Signature>::value;
+
+// variadic
+
+template<typename Signature>
+struct IsVariadicFunction : public std::false_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......)> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) volatile> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const volatile>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......)&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const volatile&>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) &&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const volatile&&>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) & noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) && noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicFunction<Ret(Args......) const volatile&& noexcept>
+    : public std::true_type
+{};
+
+// variadic helpers
+
+template<typename Signature>
+struct IsVariadicFunction<Signature(*)>
+    : public sigma::IsVariadicFunction<Signature>
+{};
+
+template<typename Signature>
+struct IsVariadicFunction<Signature(&)>
+    : public sigma::IsVariadicFunction<Signature>
+{};
+
+template<typename T, typename Signature>
+struct IsVariadicFunction<Signature(T::*)>
+    : public sigma::IsVariadicFunction<Signature>
+{};
+
+template<typename Signature>
+inline constexpr bool IsVariadicFunctionV =
+    IsVariadicFunction<Signature>::value;
+
+// const function
+
+// default
+template<typename Signature>
+struct IsConstFunction : public std::false_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const volatile> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const volatile> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const&& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const&& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args...) const volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsConstFunction<Ret(Args......) const volatile&& noexcept>
+    : public std::true_type
+{};
+
+// helpers
+
+template<typename Signature>
+struct IsConstFunction<Signature(*)> : public sigma::IsConstFunction<Signature>
+{};
+
+template<typename Signature>
+struct IsConstFunction<Signature(&)> : public sigma::IsConstFunction<Signature>
+{};
+
+template<typename T, typename Signature>
+struct IsConstFunction<Signature(T::*)>
+    : public sigma::IsConstFunction<Signature>
+{};
+
+template<typename Signature>
+inline constexpr bool IsConstFunctionV = IsConstFunction<Signature>::value;
+
+// volatile functions
+template<typename Signature>
+struct IsVolatileFunction : public std::false_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) volatile> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) volatile> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) const volatile> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) const volatile>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) const volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) const volatile&>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) const volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) const volatile&&>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) const volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) const volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) const volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) const volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args...) const volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVolatileFunction<Ret(Args......) const volatile&& noexcept>
+    : public std::true_type
+{};
+
+// helpers
+
+template<typename Signature>
+struct IsVolatileFunction<Signature(*)>
+    : public sigma::IsVolatileFunction<Signature>
+{};
+
+template<typename Signature>
+struct IsVolatileFunction<Signature(&)>
+    : public sigma::IsVolatileFunction<Signature>
+{};
+
+template<typename T, typename Signature>
+struct IsVolatileFunction<Signature(T::*)>
+    : public sigma::IsVolatileFunction<Signature>
+{};
+
+template<typename Signature>
+inline constexpr bool IsVolatileFunctionV =
+    IsVolatileFunction<Signature>::value;
+
+// lvalue qualified
+
+template<typename Signature>
+struct IsLvalueFunction : public std::false_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args...)&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args......)&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args...) const&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args......) const&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args...) volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args......) volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args...) const volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args......) const volatile&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args...) & noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args......) & noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args...) const& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args......) const& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args...) volatile& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args......) volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args...) const volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsLvalueFunction<Ret(Args......) const volatile& noexcept>
+    : public std::true_type
+{};
+
+// helpers
+
+template<typename Signature>
+struct IsLvalueFunction<Signature(*)>
+    : public sigma::IsLvalueFunction<Signature>
+{};
+
+template<typename Signature>
+struct IsLvalueFunction<Signature(&)>
+    : public sigma::IsLvalueFunction<Signature>
+{};
+
+template<typename T, typename Signature>
+struct IsLvalueFunction<Signature(T::*)>
+    : public sigma::IsLvalueFunction<Signature>
+{};
+
+template<typename Signature>
+inline constexpr bool IsLvalueFunctionV = IsLvalueFunction<Signature>::value;
+
+// rvalue qualified functions
+
+template<typename Signature>
+struct IsRvalueFunction : public std::false_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args...) &&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args......) &&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args...) const&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args......) const&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args...) volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args......) volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args...) const volatile&&> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args......) const volatile&&>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args...) && noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args......) && noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args...) const&& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args......) const&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args...) volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args......) volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args...) const volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsRvalueFunction<Ret(Args......) const volatile&& noexcept>
+    : public std::true_type
+{};
+
+// helpers
+
+template<typename Signature>
+struct IsRvalueFunction<Signature(*)>
+    : public sigma::IsRvalueFunction<Signature>
+{};
+
+template<typename Signature>
+struct IsRvalueFunction<Signature(&)>
+    : public sigma::IsRvalueFunction<Signature>
+{};
+
+template<typename T, typename Signature>
+struct IsRvalueFunction<Signature(T::*)>
+    : public sigma::IsRvalueFunction<Signature>
+{};
+
+template<typename Signature>
+inline constexpr bool IsRvalueFunctionV = IsRvalueFunction<Signature>::value;
+
+// nothrow functions
+
+template<typename Signature>
+struct IsNothrowFunction : public std::false_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) const noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) const noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) volatile noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) const volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) const volatile noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) & noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) & noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) const& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) const& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) const volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) const volatile& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) && noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) && noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) const&& noexcept> : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) const&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args...) const volatile&& noexcept>
+    : public std::true_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsNothrowFunction<Ret(Args......) const volatile&& noexcept>
+    : public std::true_type
+{};
+
+// helpers
+
+template<typename Signature>
+struct IsNothrowFunction<Signature(*)>
+    : public sigma::IsNothrowFunction<Signature>
+{};
+
+template<typename Signature>
+struct IsNothrowFunction<Signature(&)>
+    : public sigma::IsNothrowFunction<Signature>
+{};
+
+template<typename T, typename Signature>
+struct IsNothrowFunction<Signature(T::*)>
+    : public sigma::IsNothrowFunction<Signature>
+{};
+
+template<typename Signature>
+inline constexpr bool IsNothrowFunctionV = IsNothrowFunction<Signature>::value;
+
+// member function
+
+template<typename Signature>
+struct IsMemberFunctionPointer : public std::false_type
+{};
+
+template<typename T, typename Signature>
+struct IsMemberFunctionPointer<Signature(T::*)>
+    : public sigma::IsFunction<Signature>
+{};
+
+template<typename Signature>
+inline constexpr bool IsMemberFunctionPointerV =
+    IsMemberFunctionPointer<Signature>::value;
 } // namespace sigma
