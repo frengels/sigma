@@ -63,14 +63,6 @@ public:
           })
     {}
 
-    template<typename Callable,
-             std::enable_if_t<std::is_invocable_v<Callable, Args...> &&
-                                  !std::is_function_v<Callable>,
-                              int> = 0>
-    constexpr explicit FunctionRef(Callable* callable) noexcept
-        : FunctionRef{*callable}
-    {}
-
     /**
      * invokes the stored function, operator() is never actually noexcept until
      * function_traits are implemented.
@@ -114,16 +106,6 @@ public:
                 return std::invoke(
                     mem_fn, instance, std::forward<Args>(args)...);
             }};
-    }
-
-    /**
-     * convenience function for pointers
-     */
-    template<auto MemFn, typename T>
-    static constexpr std::enable_if_t<std::is_class_v<T>, FunctionRef>
-    member_fn(T* obj)
-    {
-        return member_fn<MemFn>(*obj);
     }
 }; // namespace sigma
 

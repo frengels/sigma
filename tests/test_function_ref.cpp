@@ -75,7 +75,6 @@ TEST_CASE("FunctionRef")
     {
         foo                          f{};
         sigma::FunctionRef<int(int)> functor{f};
-        sigma::FunctionRef<int(int)> functor_from_ptr{std::addressof(f)};
 
         // using the non const operator()
         CHECK(functor(5) == 10);
@@ -83,24 +82,18 @@ TEST_CASE("FunctionRef")
 
         const foo                    g{};
         sigma::FunctionRef<int(int)> const_functor{g};
-        sigma::FunctionRef<int(int)> const_functor_from_ptr{std::addressof(g)};
 
         // using the operator() const
         CHECK(const_functor(5) == 5);
-        CHECK(g.i == 5);
-
-        CHECK(const_functor_from_ptr(5) == 5);
         CHECK(g.i == 5);
     }
 
     SECTION("member function")
     {
         foo  g{};
-        auto mem_fn = sigma::FunctionRef<long(long)>::member_fn<&foo::bar>(&g);
         auto mem_fn_from_ref =
             sigma::FunctionRef<long(long)>::member_fn<&foo::bar>(g);
 
-        CHECK(mem_fn(5) == 10);
         CHECK(mem_fn_from_ref(0) == 5);
 
         // call from const member function
@@ -109,10 +102,6 @@ TEST_CASE("FunctionRef")
             sigma::FunctionRef<int()>::member_fn<&foo::const_fun>(b);
 
         CHECK(const_mem_fn() == 10);
-
-        auto const_mem_fn_ptr =
-            sigma::FunctionRef<int()>::member_fn<&foo::const_fun>(&b);
-        CHECK(const_mem_fn_ptr() == 10);
 
         // will call the non const version and return 5;
         auto nonconst_fun =
