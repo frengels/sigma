@@ -35,14 +35,16 @@ struct CopyMove
     }
 };
 
-sigma::Result<CopyMove> make_copy_move()
+template<bool B = false>
+sigma::Result<CopyMove, B> make_copy_move()
 {
-    return sigma::Result<CopyMove>(CopyMove());
+    return sigma::Result<CopyMove, B>(CopyMove());
 }
 
-sigma::Result<CopyMove> make_copy_move_in_place()
+template<bool B = false>
+sigma::Result<CopyMove, B> make_copy_move_in_place()
 {
-    return sigma::Result<CopyMove>(std::in_place_t{});
+    return sigma::Result<CopyMove, B>(std::in_place_t{});
 }
 
 sigma::Result<int> nothing_under_zero(int i)
@@ -62,12 +64,26 @@ sigma::Result<int> nothing_under_zero(int i)
     return {i};
 }
 
+template<typename T>
+std::exception_ptr throw_this(T&& t)
+{
+    try
+    {
+        throw std::forward<T>(t);
+    }
+    catch (...)
+    {
+        return std::current_exception();
+    }
+}
+
 TEST_CASE("Result")
 {
     std::logic_error except{"this could've been avoided"};
 
-    sigma::Result<int> valid{5};
-    sigma::Result<int> invalid{std::invoke([]() -> std::exception_ptr {
+    sigma::Result<int>       valid{5};
+    sigma::Result<int, true> valid_nothrow{5};
+    sigma::Result<int>       invalid{std::invoke([]() -> std::exception_ptr {
         try
         {
             throw std::logic_error{"this could've been avoided"};
@@ -80,76 +96,99 @@ TEST_CASE("Result")
 
     SECTION("has_value")
     {
-        REQUIRE(valid.has_value());
-        REQUIRE(valid);
-        REQUIRE_FALSE(invalid.has_value());
-        REQUIRE_FALSE(invalid);
+        CHECK(valid.has_value());
+        CHECK(valid);
+        CHECK(valid_nothrow.has_value());
+        CHECK(valid_nothrow);
+        CHECK_FALSE(invalid.has_value());
+        CHECK_FALSE(invalid);
     }
 
     SECTION("get value")
     {
-        REQUIRE(valid.value() == 5);
-        REQUIRE_THROWS_AS(invalid.value(), std::logic_error);
-        REQUIRE(invalid.value_or(10) == 10);
+        CHECK(valid.value() == 5);
+        CHECK(valid.value() == 5);
+        CHECK_THROWS_AS(invalid.value(), std::logic_error);
+        CHECK(invalid.value_or(10) == 10);
     }
 
     SECTION("move")
     {
         // move CopyMove into result
-        auto res = make_copy_move();
+        auto res         = make_copy_move();
+        auto res_nothrow = make_copy_move<true>();
 
-        REQUIRE(res->copy == 0);
-        REQUIRE(res->move == 1);
+        CHECK(res->copy == 0);
+        CHECK(res->move == 1);
+        CHECK(res_nothrow->copy == 0);
+        CHECK(res_nothrow->move == 1);
 
         // move CopyMove into result and then out into the value
-        CopyMove move = make_copy_move().value();
+        CopyMove move         = make_copy_move().value();
+        CopyMove move_nothrow = make_copy_move().value();
 
-        REQUIRE(move.copy == 0);
-        REQUIRE(move.move == 2);
+        CHECK(move.copy == 0);
+        CHECK(move.move == 2);
+        CHECK(move_nothrow.copy == 0);
+        CHECK(move_nothrow.move == 2);
     }
 
     SECTION("in place construction")
     {
-        auto res = sigma::Result<CopyMove>(std::in_place_t{});
+        auto res         = sigma::Result<CopyMove>(std::in_place_t{});
+        auto res_nothrow = sigma::Result<CopyMove, true>(std::in_place_t{});
 
-        REQUIRE(res->copy == 0);
-        REQUIRE(res->move == 0);
+        CHECK(res->copy == 0);
+        CHECK(res->move == 0);
+        CHECK(res_nothrow->copy == 0);
+        CHECK(res_nothrow->move == 0);
 
-        auto res2 = make_copy_move_in_place();
+        auto res2         = make_copy_move_in_place();
+        auto res2_nothrow = make_copy_move_in_place<true>();
 
-        REQUIRE(res2->copy == 0);
-        REQUIRE(res2->move == 0);
+        CHECK(res2->copy == 0);
+        CHECK(res2->move == 0);
+        CHECK(res2_nothrow->copy == 0);
+        CHECK(res2_nothrow->move == 0);
 
-        auto& res2_ref = res2.value();
+        auto& res2_ref         = res2.value();
+        auto& res2_nothrow_ref = res2_nothrow.value();
 
-        REQUIRE(res2_ref.copy == 0);
-        REQUIRE(res2_ref.move == 0);
+        CHECK(res2_ref.copy == 0);
+        CHECK(res2_ref.move == 0);
+        CHECK(res2_nothrow_ref.copy == 0);
+        CHECK(res2_nothrow_ref.move == 0);
 
-        auto res2_moved = std::move(res2).value();
+        auto res2_moved         = std::move(res2).value();
+        auto res2_nothrow_moved = std::move(res2_nothrow).value();
 
-        REQUIRE(res2_moved.copy == 0);
-        REQUIRE(res2_moved.move == 1);
+        CHECK(res2_moved.copy == 0);
+        CHECK(res2_moved.move == 1);
+        CHECK(res2_nothrow_moved.copy == 0);
+        CHECK(res2_nothrow_moved.move == 1);
     }
 
     SECTION("rethrow")
     {
-        auto generate_exception_ptr = [](auto obj) -> std::exception_ptr {
-            try
-            {
-                throw obj;
-            }
-            catch (...)
-            {
-                return std::current_exception();
-            }
-        };
-
         // result with thrown 5
-        sigma::Result<int> thrown5{generate_exception_ptr(5)};
+        sigma::Result<int> thrown5{throw_this(5)};
 
-        REQUIRE_FALSE(thrown5);
+        CHECK_FALSE(thrown5);
 
-        REQUIRE_THROWS_AS(thrown5.try_rethrow(), int);
-        REQUIRE_THROWS_AS(thrown5.value(), int);
+        CHECK_THROWS_AS(thrown5.try_rethrow(), int);
+        CHECK_THROWS_AS(thrown5.value(), int);
+    }
+
+    SECTION("noexcept specifics")
+    {
+        CHECK(sizeof(sigma::Result<std::string, true>) <
+              sizeof(sigma::Result<std::string, false>));
+        sigma::Result<std::string, true> valid{"hello, world"};
+
+        // cannot construct nothrow result from exception_ptr
+        // this check fails when it shouldn't, actually trying to construct the
+        // object doesn't work
+        // CHECK_FALSE(std::is_constructible_v<sigma::Result<std::string, true>,
+        //                                    std::exception_ptr>);
     }
 }
