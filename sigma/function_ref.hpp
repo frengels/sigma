@@ -63,6 +63,14 @@ public:
           })
     {}
 
+    template<typename Callable,
+             std::enable_if_t<std::is_invocable_v<Callable, Args...> &&
+                                  !std::is_function_v<Callable>,
+                              int> = 0>
+    constexpr explicit FunctionRef(Callable* callable) noexcept
+        : FunctionRef{*callable}
+    {}
+
     /**
      * invokes the stored function, operator() is never actually noexcept until
      * function_traits are implemented.
