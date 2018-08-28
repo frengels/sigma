@@ -13,9 +13,9 @@ class FunctionRef;
 template<typename Ret, typename... Args>
 class FunctionRef<Ret(Args...)> final {
 public:
-    using return_type   = Ret;
-    using signature     = return_type(Args...);
-    using callback_type = return_type (*)(void*, Args...);
+    using return_type    = Ret;
+    using signature_type = return_type(Args...);
+    using callback_type  = return_type (*)(void*, Args...);
 
 private:
     static return_type default_uninit(void*, Args...)
