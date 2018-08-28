@@ -1119,6 +1119,25 @@ struct NthParameter<N, Signature(T::*)>
 template<size_t N, typename Signature>
 using NthParameterT = typename NthParameter<N, Signature>::type;
 
+// get parameters as tuple
+
+template<typename Signature>
+struct ParametersAsTuple;
+
+template<typename Ret, typename... Args>
+struct ParametersAsTuple<Ret(Args...)>
+{
+    using type = std::tuple<Args...>;
+};
+
+template<typename Ret, typename... Args>
+struct ParametersAsTuple<Ret (*)(Args...)>
+    : public sigma::ParametersAsTuple<Ret(Args...)>
+{};
+
+template<typename Signature>
+using ParametersAsTupleT = typename ParametersAsTuple<Signature>::type;
+
 // selecting overloads
 
 template<typename Signature>

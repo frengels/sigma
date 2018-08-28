@@ -193,6 +193,17 @@ TEST_CASE("FunctionTraits")
         CHECK(std::is_same_v<sigma::NthParameterT<0, decltype(&nth)>, int>);
     }
 
+    SECTION("extract parameters")
+    {
+        auto lambda0 = [](int, float, int&) {};
+        auto lambda1 = [](int, float, int&) noexcept {};
+
+        // CHECK(std::is_same_v<sigma::ParametersAsTupleT<decltype(lambda0)>,
+        //                     std::tuple<int, float, int&>>);
+        CHECK(std::is_same_v<sigma::ParametersAsTupleT<decltype(&nth)>,
+                             std::tuple<int>>);
+    }
+
     SECTION("signature")
     {
         CHECK(std::is_same_v<void() & noexcept,
