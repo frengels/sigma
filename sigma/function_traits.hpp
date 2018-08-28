@@ -1051,26 +1051,73 @@ struct FunctionSignature;
 template<typename Signature>
 struct FunctionSignature<Signature(*)>
 {
+    static_assert(sigma::IsFunctionV<Signature>,
+                  "Signature(*) is not actually a function?");
     using type = Signature;
 };
 
 template<typename Signature>
 struct FunctionSignature<Signature(&)>
 {
+    static_assert(sigma::IsFunctionV<Signature>,
+                  "Signature(&) is not actually a function?");
     using type = Signature;
 };
 
 template<typename T, typename Signature>
 struct FunctionSignature<Signature(T::*)>
 {
+    static_assert(sigma::IsFunctionV<Signature>,
+                  "Signature(T::*) is not actually a function?");
     using type = Signature;
 };
 
 template<typename Signature>
 using FunctionSignatureT = typename sigma::FunctionSignature<Signature>::type;
 
-// get nth argument
-// TODO
+// get nth element
+
+template<std::size_t N, typename... Ts>
+struct NthElement
+{
+    static_assert(N < sizeof...(Ts),
+                  "provided N larger than the amount of types available");
+    using type = typename std::tuple_element<N, std::tuple<Ts...>>::type;
+};
+
+template<std::size_t N, typename... Ts>
+using NthElementT = typename NthElement<N, Ts...>::type;
+
+// get nth parameter
+
+template<std::size_t N, typename Signature>
+struct NthParameter;
+
+template<std::size_t N, typename Ret, typename... Args>
+struct NthParameter<N, Ret(Args...)>
+{
+    static_assert(N < sizeof...(Args),
+                  "provided N is bigger than the amount of parameters");
+    using type = NthElementT<N, Args...>;
+};
+
+template<size_t N, typename Ret, typename... Args>
+struct NthParameter<N, Ret (*)(Args...)>
+    : public sigma::NthParameter<N, Ret(Args...)>
+{};
+
+template<std::size_t N, typename Ret, typename... Args>
+struct NthParameter<N, Ret (&)(Args...)>
+    : public sigma::NthParameter<N, Ret(Args...)>
+{};
+
+template<size_t N, typename T, typename Signature>
+struct NthParameter<N, Signature(T::*)>
+    : public sigma::NthParameter<N, Signature>
+{};
+
+template<size_t N, typename Signature>
+using NthParameterT = typename NthParameter<N, Signature>::type;
 
 // selecting overloads
 

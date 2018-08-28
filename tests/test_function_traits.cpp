@@ -10,6 +10,9 @@ void variadic(...)
 void nothrow() noexcept
 {}
 
+void nth(int)
+{}
+
 struct foo
 {
     void normal()
@@ -184,10 +187,19 @@ TEST_CASE("FunctionTraits")
         CHECK(sigma::IsConstFunctionV<decltype(&foo::nrv_var_cv)>);
     }
 
+    SECTION("nth parameter")
+    {
+        CHECK(std::is_same_v<sigma::NthElementT<2, void, int, float>, float>);
+        CHECK(std::is_same_v<sigma::NthParameterT<0, decltype(&nth)>, int>);
+    }
+
     SECTION("signature")
     {
         CHECK(std::is_same_v<void() & noexcept,
                              sigma::FunctionSignatureT<decltype(&foo::nlv)>>);
+        CHECK_FALSE(
+            std::is_same_v<void() noexcept,
+                           sigma::FunctionSignatureT<decltype(&foo::nlv)>>);
     }
 
     SECTION("selecting overloads")
