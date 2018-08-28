@@ -170,10 +170,27 @@ TEST_CASE("FunctionTraits")
         CHECK(sigma::IsFunction<decltype(*variadic)>::value);
         CHECK(sigma::IsFunction<decltype(&variadic)>::value);
 
+        CHECK_FALSE(sigma::IsFunctionPointerV<decltype(&std::string::c_str)>);
+        CHECK_FALSE(sigma::IsFunctionReferenceV<decltype(&std::string::c_str)>);
+        CHECK_FALSE(sigma::IsFunctionSignatureV<decltype(&std::string::c_str)>);
+
+        CHECK(sigma::IsFunctionPointerV<decltype(&variadic)>);
+        CHECK_FALSE(sigma::IsFunctionReferenceV<decltype(&variadic)>);
+        CHECK_FALSE(sigma::IsFunctionSignatureV<decltype(&variadic)>);
+
+        CHECK(sigma::IsFunctionReferenceV<decltype(*variadic)>);
+        CHECK_FALSE(sigma::IsFunctionPointerV<decltype(*variadic)>);
+        CHECK_FALSE(sigma::IsFunctionSignatureV<decltype(*variadic)>);
+
+        CHECK(sigma::IsFunctionSignatureV<decltype(variadic)>);
+        CHECK_FALSE(sigma::IsFunctionPointerV<decltype(variadic)>);
+        CHECK_FALSE(sigma::IsFunctionReferenceV<decltype(variadic)>);
+
         // non member functions
         CHECK(sigma::IsFunction<decltype(normal)>::value);
         CHECK(sigma::IsFunction<decltype(variadic)>::value);
         CHECK(sigma::IsFunction<decltype(nothrow)>::value);
+        CHECK_FALSE(sigma::IsMemberFunctionPointerV<decltype(nothrow)>);
 
         // member functions
         CHECK(sigma::IsFunctionV<decltype(&foo::nrv_cv)>);
@@ -211,6 +228,9 @@ TEST_CASE("FunctionTraits")
         CHECK_FALSE(
             std::is_same_v<void() noexcept,
                            sigma::FunctionSignatureT<decltype(&foo::nlv)>>);
+
+        CHECK(std::is_same_v<void(),
+                             sigma::FunctionSignatureT<std::function<void()>>>);
     }
 
     SECTION("selecting overloads")
