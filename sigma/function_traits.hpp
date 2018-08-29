@@ -771,158 +771,158 @@ using RemoveSignatureRvalueT = typename RemoveSignatureRvalue<Signature>::type;
 // remove noexcept qualifier from signature
 
 template<typename Signature>
-struct RemoveSignatureNoexcept
+struct RemoveSignatureNothrow
 {
     using type = Signature;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) noexcept>
 {
     using type = Ret(Args...);
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) noexcept>
 {
     using type = Ret(Args......);
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) const noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) const noexcept>
 {
     using type = Ret(Args...) const;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) const noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) const noexcept>
 {
     using type = Ret(Args......) const;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) volatile noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) volatile noexcept>
 {
     using type = Ret(Args...) volatile;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) volatile noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) volatile noexcept>
 {
     using type = Ret(Args......) volatile;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) const volatile noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) const volatile noexcept>
 {
     using type = Ret(Args...) const volatile;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) const volatile noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) const volatile noexcept>
 {
     using type = Ret(Args......) const volatile;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) & noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) & noexcept>
 {
     using type = Ret(Args...) &;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) & noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) & noexcept>
 {
     using type = Ret(Args......) &;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) const& noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) const& noexcept>
 {
     using type = Ret(Args...) const&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) const& noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) const& noexcept>
 {
     using type = Ret(Args......) const&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) volatile& noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) volatile& noexcept>
 {
     using type = Ret(Args...) volatile&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) volatile& noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) volatile& noexcept>
 {
     using type = Ret(Args......) volatile&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) const volatile& noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) const volatile& noexcept>
 {
     using type = Ret(Args...) const volatile&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) const volatile& noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) const volatile& noexcept>
 {
     using type = Ret(Args......) const volatile&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) && noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) && noexcept>
 {
     using type = Ret(Args...) &&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) && noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) && noexcept>
 {
     using type = Ret(Args......) &&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) const&& noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) const&& noexcept>
 {
     using type = Ret(Args...) const&&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) const&& noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) const&& noexcept>
 {
     using type = Ret(Args......) const&&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) volatile&& noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) volatile&& noexcept>
 {
     using type = Ret(Args...) volatile&&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) volatile&& noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) volatile&& noexcept>
 {
     using type = Ret(Args......) volatile&&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args...) const volatile&& noexcept>
+struct RemoveSignatureNothrow<Ret(Args...) const volatile&& noexcept>
 {
     using type = Ret(Args...) const volatile&&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNoexcept<Ret(Args......) const volatile&& noexcept>
+struct RemoveSignatureNothrow<Ret(Args......) const volatile&& noexcept>
 {
     using type = Ret(Args......) const volatile&&;
 };
 
 template<typename Signature>
-using RemoveSignatureNoexceptT =
-    typename RemoveSignatureNoexcept<Signature>::type;
+using RemoveSignatureNothrowT =
+    typename RemoveSignatureNothrow<Signature>::type;
 
 // remove variadic qualifier from functions
 
@@ -1108,38 +1108,38 @@ using RemoveMemberFunctionPointerRvalueT =
 // remove noexcept qualifier from functions
 
 template<typename Signature>
-struct RemoveFunctionNoexcept : public RemoveSignatureNoexcept<Signature>
+struct RemoveFunctionNothrow : public RemoveSignatureNothrow<Signature>
 {};
 
 template<typename Signature>
-struct RemoveFunctionNoexcept<Signature(*)>
-    : public RemoveSignatureNoexcept<Signature>
+struct RemoveFunctionNothrow<Signature(*)>
+    : public RemoveSignatureNothrow<Signature>
 {};
 
 template<typename Signature>
-struct RemoveFunctionNoexcept<Signature(&)>
-    : public RemoveSignatureNoexcept<Signature>
+struct RemoveFunctionNothrow<Signature(&)>
+    : public RemoveSignatureNothrow<Signature>
 {};
 
 template<typename Fn>
-using RemoveFunctionNoexceptT = typename RemoveFunctionNoexcept<Fn>::type;
+using RemoveFunctionNothrowT = typename RemoveFunctionNothrow<Fn>::type;
 
 // remove noexcept qualifier from member function pointers
 
 template<typename T>
-struct RemoveMemberFunctionPointerNoexcept
+struct RemoveMemberFunctionPointerNothrow
 {
     using type = T;
 };
 
 template<typename T, typename Signature>
-struct RemoveMemberFunctionPointerNoexcept<Signature(T::*)>
-    : public RemoveSignatureNoexcept<Signature>
+struct RemoveMemberFunctionPointerNothrow<Signature(T::*)>
+    : public RemoveSignatureNothrow<Signature>
 {};
 
 template<typename MemFn>
-using RemoveMemberFunctionPointerNoexceptT =
-    typename RemoveMemberFunctionPointerNoexcept<MemFn>::type;
+using RemoveMemberFunctionPointerNothrowT =
+    typename RemoveMemberFunctionPointerNothrow<MemFn>::type;
 
 // remove all qualifiers from a signature
 
@@ -1148,7 +1148,7 @@ struct RemoveSignatureQualifiers
 {
     using type = RemoveSignatureVariadicT<
         RemoveSignatureConstT<RemoveSignatureVolatileT<RemoveSignatureLvalueT<
-            RemoveSignatureRvalue<RemoveSignatureNoexceptT<Signature>>>>>>;
+            RemoveSignatureRvalue<RemoveSignatureNothrowT<Signature>>>>>>;
 };
 
 template<typename Signature>
@@ -1207,7 +1207,7 @@ template<typename Signature>
 struct IsSignature
     : public detail::IsSignatureHelper<RemoveSignatureVariadicT<
           RemoveSignatureConstT<RemoveSignatureVolatileT<RemoveSignatureLvalueT<
-              RemoveSignatureRvalueT<RemoveSignatureNoexceptT<Signature>>>>>>>
+              RemoveSignatureRvalueT<RemoveSignatureNothrowT<Signature>>>>>>>
 {};
 
 template<typename Signature>
@@ -1314,7 +1314,7 @@ struct IsVariadicSignature
           detail::IsVariadicSignatureHelper<
               RemoveSignatureConstT<RemoveSignatureVolatileT<
                   RemoveSignatureLvalueT<RemoveSignatureRvalueT<
-                      RemoveSignatureNoexcept<Signature>>>>>>::value,
+                      RemoveSignatureNothrow<Signature>>>>>>::value,
           std::true_type,
           std::false_type>
 {};
@@ -1374,7 +1374,7 @@ struct IsConstSignature
           detail::IsConstSignatureHelper<
               RemoveSignatureVariadicT<RemoveSignatureVolatileT<
                   RemoveSignatureLvalueT<RemoveSignatureRvalueT<
-                      RemoveSignatureNoexceptT<Signature>>>>>>::value,
+                      RemoveSignatureNothrowT<Signature>>>>>>::value,
           std::true_type,
           std::false_type>
 {};
@@ -1431,7 +1431,7 @@ struct IsVolatileSignature
           detail::IsVolatileSignatureHelper<
               RemoveSignatureVariadicT<RemoveSignatureConstT<
                   RemoveSignatureLvalueT<RemoveSignatureRvalueT<
-                      RemoveSignatureNoexceptT<Signature>>>>>>::value,
+                      RemoveSignatureNothrowT<Signature>>>>>>::value,
           std::true_type,
           std::false_type>
 {};
@@ -1489,7 +1489,7 @@ struct IsLvalueSignature
           detail::IsLvalueSignatureHelper<
               RemoveSignatureVariadicT<RemoveSignatureConstT<
                   RemoveSignatureVolatileT<RemoveSignatureRvalueT<
-                      RemoveSignatureNoexceptT<Signature>>>>>>::value,
+                      RemoveSignatureNothrowT<Signature>>>>>>::value,
           std::true_type,
           std::false_type>
 {};
@@ -1546,7 +1546,7 @@ struct IsRvalueSignature
           detail::IsRvalueSignatureHelper<
               RemoveSignatureVariadicT<RemoveSignatureConstT<
                   RemoveSignatureVolatileT<RemoveSignatureLvalueT<
-                      RemoveSignatureNoexceptT<Signature>>>>>>::value,
+                      RemoveSignatureNothrowT<Signature>>>>>>::value,
           std::true_type,
           std::false_type>
 {};
@@ -1589,18 +1589,18 @@ inline constexpr bool IsRvalueMemberFunctionPointerV =
 namespace detail
 {
 template<typename Signature>
-struct IsNoexceptSignatureHelper : public std::false_type
+struct IsNothrowSignatureHelper : public std::false_type
 {};
 
 template<typename Ret, typename... Args>
-struct IsNoexceptSignatureHelper<Ret(Args...) const> : public std::true_type
+struct IsNothrowSignatureHelper<Ret(Args...) const> : public std::true_type
 {};
 } // namespace detail
 
 template<typename Signature>
-struct IsNoexceptSignature
+struct IsNothrowSignature
     : public std::conditional_t<
-          detail::IsNoexceptSignatureHelper<
+          detail::IsNothrowSignatureHelper<
               RemoveSignatureVariadicT<RemoveSignatureConstT<
                   RemoveSignatureVolatileT<RemoveSignatureLvalueT<
                       RemoveSignatureRvalueT<Signature>>>>>>::value,
@@ -1609,38 +1609,38 @@ struct IsNoexceptSignature
 {};
 
 template<typename Signature>
-inline constexpr bool IsNoexceptSignatureV =
-    IsNoexceptSignature<Signature>::value;
+inline constexpr bool IsNothrowSignatureV =
+    IsNothrowSignature<Signature>::value;
 
 template<typename Fn>
-struct IsNoexceptFunction : public IsNoexceptSignature<Fn>
+struct IsNothrowFunction : public IsNothrowSignature<Fn>
 {};
 
 template<typename Signature>
-struct IsNoexceptFunction<Signature(*)> : public IsNoexceptSignature<Signature>
+struct IsNothrowFunction<Signature(*)> : public IsNothrowSignature<Signature>
 {};
 
 template<typename Signature>
-struct IsNoexceptFunction<Signature(&)> : public IsNoexceptSignature<Signature>
+struct IsNothrowFunction<Signature(&)> : public IsNothrowSignature<Signature>
 {};
 
 template<typename Fn>
-inline constexpr bool IsNoexceptFunctionV = IsNoexceptFunction<Fn>::value;
+inline constexpr bool IsNothrowFunctionV = IsNothrowFunction<Fn>::value;
 
 // check for nothrow member function pointer
 
 template<typename T>
-struct IsNoexceptMemberFunctionPointer : public std::false_type
+struct IsNothrowMemberFunctionPointer : public std::false_type
 {};
 
 template<typename T, typename Signature>
-struct IsNoexceptMemberFunctionPointer<Signature(T::*)>
-    : public IsNoexceptSignature<Signature>
+struct IsNothrowMemberFunctionPointer<Signature(T::*)>
+    : public IsNothrowSignature<Signature>
 {};
 
 template<typename MemFn>
-inline constexpr bool IsNoexceptMemberFunctionPointerV =
-    IsNoexceptMemberFunctionPointer<MemFn>::value;
+inline constexpr bool IsNothrowMemberFunctionPointerV =
+    IsNothrowMemberFunctionPointer<MemFn>::value;
 
 // member function pointer class
 
