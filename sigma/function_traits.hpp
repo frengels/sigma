@@ -70,145 +70,145 @@ struct AddSignatureVariadic
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...)>
 {
-    using type = Ret(Args......);
+    using type = Ret(Args..., ...);
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const>
 {
-    using type = Ret(Args......) const;
+    using type = Ret(Args..., ...) const;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) volatile>
 {
-    using type = Ret(Args......) volatile;
+    using type = Ret(Args..., ...) volatile;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const volatile>
 {
-    using type = Ret(Args......) const volatile;
+    using type = Ret(Args..., ...) const volatile;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...)&>
 {
-    using type = Ret(Args......) &;
+    using type = Ret(Args..., ...) &;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const&>
 {
-    using type = Ret(Args......) const&;
+    using type = Ret(Args..., ...) const&;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) volatile&>
 {
-    using type = Ret(Args......) volatile&;
+    using type = Ret(Args..., ...) volatile&;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const volatile&>
 {
-    using type = Ret(Args......) const volatile&;
+    using type = Ret(Args..., ...) const volatile&;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) &&>
 {
-    using type = Ret(Args......) &&;
+    using type = Ret(Args..., ...) &&;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const&&>
 {
-    using type = Ret(Args......) const&&;
+    using type = Ret(Args..., ...) const&&;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) volatile&&>
 {
-    using type = Ret(Args......) volatile&&;
+    using type = Ret(Args..., ...) volatile&&;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const volatile&&>
 {
-    using type = Ret(Args......) const volatile&&;
+    using type = Ret(Args..., ...) const volatile&&;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) noexcept>
 {
-    using type = Ret(Args......) noexcept;
+    using type = Ret(Args..., ...) noexcept;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const noexcept>
 {
-    using type = Ret(Args......) const noexcept;
+    using type = Ret(Args..., ...) const noexcept;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) volatile noexcept>
 {
-    using type = Ret(Args......) volatile noexcept;
+    using type = Ret(Args..., ...) volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const volatile noexcept>
 {
-    using type = Ret(Args......) const volatile noexcept;
+    using type = Ret(Args..., ...) const volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) & noexcept>
 {
-    using type = Ret(Args......) & noexcept;
+    using type = Ret(Args..., ...) & noexcept;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const& noexcept>
 {
-    using type = Ret(Args......) const& noexcept;
+    using type = Ret(Args..., ...) const& noexcept;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) volatile& noexcept>
 {
-    using type = Ret(Args......) volatile& noexcept;
+    using type = Ret(Args..., ...) volatile& noexcept;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const volatile& noexcept>
 {
-    using type = Ret(Args......) const volatile& noexcept;
+    using type = Ret(Args..., ...) const volatile& noexcept;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) && noexcept>
 {
-    using type = Ret(Args......) && noexcept;
+    using type = Ret(Args..., ...) && noexcept;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const&& noexcept>
 {
-    using type = Ret(Args......) const&& noexcept;
+    using type = Ret(Args..., ...) const&& noexcept;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) volatile&& noexcept>
 {
-    using type = Ret(Args......) volatile&& noexcept;
+    using type = Ret(Args..., ...) volatile&& noexcept;
 };
 
 template<typename Ret, typename... Args>
 struct AddSignatureVariadic<Ret(Args...) const volatile&& noexcept>
 {
-    using type = Ret(Args......) const volatile&& noexcept;
+    using type = Ret(Args..., ...) const volatile&& noexcept;
 };
 
 template<typename Signature>
@@ -229,9 +229,9 @@ struct AddSignatureConst<Ret(Args...)>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......)>
+struct AddSignatureConst<Ret(Args..., ...)>
 {
-    using type = Ret(Args......) const;
+    using type = Ret(Args..., ...) const;
 };
 
 template<typename Ret, typename... Args>
@@ -241,9 +241,9 @@ struct AddSignatureConst<Ret(Args...) volatile>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......) volatile>
+struct AddSignatureConst<Ret(Args..., ...) volatile>
 {
-    using type = Ret(Args......) const volatile;
+    using type = Ret(Args..., ...) const volatile;
 };
 
 template<typename Ret, typename... Args>
@@ -253,9 +253,9 @@ struct AddSignatureConst<Ret(Args...)&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......)&>
+struct AddSignatureConst<Ret(Args..., ...)&>
 {
-    using type = Ret(Args......) const&;
+    using type = Ret(Args..., ...) const&;
 };
 
 template<typename Ret, typename... Args>
@@ -265,9 +265,9 @@ struct AddSignatureConst<Ret(Args...) volatile&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......) volatile&>
+struct AddSignatureConst<Ret(Args..., ...) volatile&>
 {
-    using type = Ret(Args......) const volatile&;
+    using type = Ret(Args..., ...) const volatile&;
 };
 
 template<typename Ret, typename... Args>
@@ -277,9 +277,9 @@ struct AddSignatureConst<Ret(Args...) &&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......) &&>
+struct AddSignatureConst<Ret(Args..., ...) &&>
 {
-    using type = Ret(Args......) const&&;
+    using type = Ret(Args..., ...) const&&;
 };
 
 template<typename Ret, typename... Args>
@@ -289,9 +289,9 @@ struct AddSignatureConst<Ret(Args...) volatile&&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......) volatile&&>
+struct AddSignatureConst<Ret(Args..., ...) volatile&&>
 {
-    using type = Ret(Args......) const volatile&&;
+    using type = Ret(Args..., ...) const volatile&&;
 };
 
 template<typename Ret, typename... Args>
@@ -301,9 +301,9 @@ struct AddSignatureConst<Ret(Args...) noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......) noexcept>
+struct AddSignatureConst<Ret(Args..., ...) noexcept>
 {
-    using type = Ret(Args......) const noexcept;
+    using type = Ret(Args..., ...) const noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -313,9 +313,9 @@ struct AddSignatureConst<Ret(Args...) volatile noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......) volatile noexcept>
+struct AddSignatureConst<Ret(Args..., ...) volatile noexcept>
 {
-    using type = Ret(Args......) const volatile noexcept;
+    using type = Ret(Args..., ...) const volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -325,9 +325,9 @@ struct AddSignatureConst<Ret(Args...) & noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......) & noexcept>
+struct AddSignatureConst<Ret(Args..., ...) & noexcept>
 {
-    using type = Ret(Args......) const& noexcept;
+    using type = Ret(Args..., ...) const& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -337,9 +337,9 @@ struct AddSignatureConst<Ret(Args...) volatile& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......) volatile& noexcept>
+struct AddSignatureConst<Ret(Args..., ...) volatile& noexcept>
 {
-    using type = Ret(Args......) const volatile& noexcept;
+    using type = Ret(Args..., ...) const volatile& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -349,9 +349,9 @@ struct AddSignatureConst<Ret(Args...) && noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......) && noexcept>
+struct AddSignatureConst<Ret(Args..., ...) && noexcept>
 {
-    using type = Ret(Args......) const&& noexcept;
+    using type = Ret(Args..., ...) const&& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -361,9 +361,9 @@ struct AddSignatureConst<Ret(Args...) volatile&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureConst<Ret(Args......) volatile&& noexcept>
+struct AddSignatureConst<Ret(Args..., ...) volatile&& noexcept>
 {
-    using type = Ret(Args......) const volatile&& noexcept;
+    using type = Ret(Args..., ...) const volatile&& noexcept;
 };
 
 template<typename Signature>
@@ -384,9 +384,9 @@ struct AddSignatureVolatile<Ret(Args...)>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......)>
+struct AddSignatureVolatile<Ret(Args..., ...)>
 {
-    using type = Ret(Args......) volatile;
+    using type = Ret(Args..., ...) volatile;
 };
 
 template<typename Ret, typename... Args>
@@ -396,9 +396,9 @@ struct AddSignatureVolatile<Ret(Args...) const>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......) const>
+struct AddSignatureVolatile<Ret(Args..., ...) const>
 {
-    using type = Ret(Args......) const volatile;
+    using type = Ret(Args..., ...) const volatile;
 };
 
 template<typename Ret, typename... Args>
@@ -408,9 +408,9 @@ struct AddSignatureVolatile<Ret(Args...)&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......)&>
+struct AddSignatureVolatile<Ret(Args..., ...)&>
 {
-    using type = Ret(Args......) volatile&;
+    using type = Ret(Args..., ...) volatile&;
 };
 
 template<typename Ret, typename... Args>
@@ -420,9 +420,9 @@ struct AddSignatureVolatile<Ret(Args...) const&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......) const&>
+struct AddSignatureVolatile<Ret(Args..., ...) const&>
 {
-    using type = Ret(Args......) const volatile&;
+    using type = Ret(Args..., ...) const volatile&;
 };
 
 template<typename Ret, typename... Args>
@@ -432,9 +432,9 @@ struct AddSignatureVolatile<Ret(Args...) &&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......) &&>
+struct AddSignatureVolatile<Ret(Args..., ...) &&>
 {
-    using type = Ret(Args......) volatile&&;
+    using type = Ret(Args..., ...) volatile&&;
 };
 
 template<typename Ret, typename... Args>
@@ -444,9 +444,9 @@ struct AddSignatureVolatile<Ret(Args...) const&&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......) const&&>
+struct AddSignatureVolatile<Ret(Args..., ...) const&&>
 {
-    using type = Ret(Args......) const volatile&&;
+    using type = Ret(Args..., ...) const volatile&&;
 };
 
 template<typename Ret, typename... Args>
@@ -456,9 +456,9 @@ struct AddSignatureVolatile<Ret(Args...) noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......) noexcept>
+struct AddSignatureVolatile<Ret(Args..., ...) noexcept>
 {
-    using type = Ret(Args......) volatile noexcept;
+    using type = Ret(Args..., ...) volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -468,9 +468,9 @@ struct AddSignatureVolatile<Ret(Args...) const noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......) const noexcept>
+struct AddSignatureVolatile<Ret(Args..., ...) const noexcept>
 {
-    using type = Ret(Args......) const volatile noexcept;
+    using type = Ret(Args..., ...) const volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -480,9 +480,9 @@ struct AddSignatureVolatile<Ret(Args...) & noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......) & noexcept>
+struct AddSignatureVolatile<Ret(Args..., ...) & noexcept>
 {
-    using type = Ret(Args......) volatile& noexcept;
+    using type = Ret(Args..., ...) volatile& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -492,9 +492,9 @@ struct AddSignatureVolatile<Ret(Args...) const& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......) const& noexcept>
+struct AddSignatureVolatile<Ret(Args..., ...) const& noexcept>
 {
-    using type = Ret(Args......) const volatile& noexcept;
+    using type = Ret(Args..., ...) const volatile& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -504,9 +504,9 @@ struct AddSignatureVolatile<Ret(Args...) && noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......) && noexcept>
+struct AddSignatureVolatile<Ret(Args..., ...) && noexcept>
 {
-    using type = Ret(Args......) volatile&& noexcept;
+    using type = Ret(Args..., ...) volatile&& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -516,9 +516,9 @@ struct AddSignatureVolatile<Ret(Args...) const&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureVolatile<Ret(Args......) const&& noexcept>
+struct AddSignatureVolatile<Ret(Args..., ...) const&& noexcept>
 {
-    using type = Ret(Args......) const volatile&& noexcept;
+    using type = Ret(Args..., ...) const volatile&& noexcept;
 };
 
 template<typename Signature>
@@ -539,9 +539,9 @@ struct AddSignatureLvalue<Ret(Args...)>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureLvalue<Ret(Args......)>
+struct AddSignatureLvalue<Ret(Args..., ...)>
 {
-    using type = Ret(Args......) &;
+    using type = Ret(Args..., ...) &;
 };
 
 template<typename Ret, typename... Args>
@@ -551,9 +551,9 @@ struct AddSignatureLvalue<Ret(Args...) const>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureLvalue<Ret(Args......) const>
+struct AddSignatureLvalue<Ret(Args..., ...) const>
 {
-    using type = Ret(Args......) const&;
+    using type = Ret(Args..., ...) const&;
 };
 
 template<typename Ret, typename... Args>
@@ -563,9 +563,9 @@ struct AddSignatureLvalue<Ret(Args...) volatile>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureLvalue<Ret(Args......) volatile>
+struct AddSignatureLvalue<Ret(Args..., ...) volatile>
 {
-    using type = Ret(Args......) volatile&;
+    using type = Ret(Args..., ...) volatile&;
 };
 
 template<typename Ret, typename... Args>
@@ -575,9 +575,9 @@ struct AddSignatureLvalue<Ret(Args...) const volatile>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureLvalue<Ret(Args......) const volatile>
+struct AddSignatureLvalue<Ret(Args..., ...) const volatile>
 {
-    using type = Ret(Args......) const volatile&;
+    using type = Ret(Args..., ...) const volatile&;
 };
 
 template<typename Ret, typename... Args>
@@ -587,9 +587,9 @@ struct AddSignatureLvalue<Ret(Args...) noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureLvalue<Ret(Args......) noexcept>
+struct AddSignatureLvalue<Ret(Args..., ...) noexcept>
 {
-    using type = Ret(Args......) & noexcept;
+    using type = Ret(Args..., ...) & noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -599,9 +599,9 @@ struct AddSignatureLvalue<Ret(Args...) const noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureLvalue<Ret(Args......) const noexcept>
+struct AddSignatureLvalue<Ret(Args..., ...) const noexcept>
 {
-    using type = Ret(Args......) const& noexcept;
+    using type = Ret(Args..., ...) const& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -611,9 +611,9 @@ struct AddSignatureLvalue<Ret(Args...) volatile noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureLvalue<Ret(Args......) volatile noexcept>
+struct AddSignatureLvalue<Ret(Args..., ...) volatile noexcept>
 {
-    using type = Ret(Args......) volatile& noexcept;
+    using type = Ret(Args..., ...) volatile& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -623,9 +623,9 @@ struct AddSignatureLvalue<Ret(Args...) const volatile noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureLvalue<Ret(Args......) const volatile noexcept>
+struct AddSignatureLvalue<Ret(Args..., ...) const volatile noexcept>
 {
-    using type = Ret(Args......) const volatile& noexcept;
+    using type = Ret(Args..., ...) const volatile& noexcept;
 };
 
 template<typename Signature>
@@ -646,9 +646,9 @@ struct AddSignatureRvalue<Ret(Args...)>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureRvalue<Ret(Args......)>
+struct AddSignatureRvalue<Ret(Args..., ...)>
 {
-    using type = Ret(Args......) &&;
+    using type = Ret(Args..., ...) &&;
 };
 
 template<typename Ret, typename... Args>
@@ -658,9 +658,9 @@ struct AddSignatureRvalue<Ret(Args...) const>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureRvalue<Ret(Args......) const>
+struct AddSignatureRvalue<Ret(Args..., ...) const>
 {
-    using type = Ret(Args......) const&&;
+    using type = Ret(Args..., ...) const&&;
 };
 
 template<typename Ret, typename... Args>
@@ -670,9 +670,9 @@ struct AddSignatureRvalue<Ret(Args...) volatile>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureRvalue<Ret(Args......) volatile>
+struct AddSignatureRvalue<Ret(Args..., ...) volatile>
 {
-    using type = Ret(Args......) volatile&&;
+    using type = Ret(Args..., ...) volatile&&;
 };
 
 template<typename Ret, typename... Args>
@@ -682,9 +682,9 @@ struct AddSignatureRvalue<Ret(Args...) const volatile>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureRvalue<Ret(Args......) const volatile>
+struct AddSignatureRvalue<Ret(Args..., ...) const volatile>
 {
-    using type = Ret(Args......) const volatile&&;
+    using type = Ret(Args..., ...) const volatile&&;
 };
 
 template<typename Ret, typename... Args>
@@ -694,9 +694,9 @@ struct AddSignatureRvalue<Ret(Args...) noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureRvalue<Ret(Args......) noexcept>
+struct AddSignatureRvalue<Ret(Args..., ...) noexcept>
 {
-    using type = Ret(Args......) && noexcept;
+    using type = Ret(Args..., ...) && noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -706,9 +706,9 @@ struct AddSignatureRvalue<Ret(Args...) const noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureRvalue<Ret(Args......) const noexcept>
+struct AddSignatureRvalue<Ret(Args..., ...) const noexcept>
 {
-    using type = Ret(Args......) const&& noexcept;
+    using type = Ret(Args..., ...) const&& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -718,9 +718,9 @@ struct AddSignatureRvalue<Ret(Args...) volatile noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureRvalue<Ret(Args......) volatile noexcept>
+struct AddSignatureRvalue<Ret(Args..., ...) volatile noexcept>
 {
-    using type = Ret(Args......) volatile&& noexcept;
+    using type = Ret(Args..., ...) volatile&& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -730,9 +730,9 @@ struct AddSignatureRvalue<Ret(Args...) const volatile noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureRvalue<Ret(Args......) const volatile noexcept>
+struct AddSignatureRvalue<Ret(Args..., ...) const volatile noexcept>
 {
-    using type = Ret(Args......) const volatile&& noexcept;
+    using type = Ret(Args..., ...) const volatile&& noexcept;
 };
 
 template<typename Signature>
@@ -753,9 +753,9 @@ struct AddSignatureNothrow<Ret(Args...)>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......)>
+struct AddSignatureNothrow<Ret(Args..., ...)>
 {
-    using type = Ret(Args......) noexcept;
+    using type = Ret(Args..., ...) noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -765,9 +765,9 @@ struct AddSignatureNothrow<Ret(Args...) const>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......) const>
+struct AddSignatureNothrow<Ret(Args..., ...) const>
 {
-    using type = Ret(Args......) const noexcept;
+    using type = Ret(Args..., ...) const noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -777,9 +777,9 @@ struct AddSignatureNothrow<Ret(Args...) volatile>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......) volatile>
+struct AddSignatureNothrow<Ret(Args..., ...) volatile>
 {
-    using type = Ret(Args......) volatile noexcept;
+    using type = Ret(Args..., ...) volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -789,9 +789,9 @@ struct AddSignatureNothrow<Ret(Args...) const volatile>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......) const volatile>
+struct AddSignatureNothrow<Ret(Args..., ...) const volatile>
 {
-    using type = Ret(Args......) const volatile noexcept;
+    using type = Ret(Args..., ...) const volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -801,9 +801,9 @@ struct AddSignatureNothrow<Ret(Args...)&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......)&>
+struct AddSignatureNothrow<Ret(Args..., ...)&>
 {
-    using type = Ret(Args......) & noexcept;
+    using type = Ret(Args..., ...) & noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -813,9 +813,9 @@ struct AddSignatureNothrow<Ret(Args...) const&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......) const&>
+struct AddSignatureNothrow<Ret(Args..., ...) const&>
 {
-    using type = Ret(Args......) const& noexcept;
+    using type = Ret(Args..., ...) const& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -825,9 +825,9 @@ struct AddSignatureNothrow<Ret(Args...) volatile&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......) volatile&>
+struct AddSignatureNothrow<Ret(Args..., ...) volatile&>
 {
-    using type = Ret(Args......) volatile& noexcept;
+    using type = Ret(Args..., ...) volatile& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -837,9 +837,9 @@ struct AddSignatureNothrow<Ret(Args...) const volatile&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......) const volatile&>
+struct AddSignatureNothrow<Ret(Args..., ...) const volatile&>
 {
-    using type = Ret(Args......) const volatile& noexcept;
+    using type = Ret(Args..., ...) const volatile& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -849,9 +849,9 @@ struct AddSignatureNothrow<Ret(Args...) &&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......) &&>
+struct AddSignatureNothrow<Ret(Args..., ...) &&>
 {
-    using type = Ret(Args......) && noexcept;
+    using type = Ret(Args..., ...) && noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -861,9 +861,9 @@ struct AddSignatureNothrow<Ret(Args...) const&&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......) const&&>
+struct AddSignatureNothrow<Ret(Args..., ...) const&&>
 {
-    using type = Ret(Args......) const&& noexcept;
+    using type = Ret(Args..., ...) const&& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -873,9 +873,9 @@ struct AddSignatureNothrow<Ret(Args...) volatile&&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......) volatile&&>
+struct AddSignatureNothrow<Ret(Args..., ...) volatile&&>
 {
-    using type = Ret(Args......) volatile&& noexcept;
+    using type = Ret(Args..., ...) volatile&& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -885,9 +885,9 @@ struct AddSignatureNothrow<Ret(Args...) const volatile&&>
 };
 
 template<typename Ret, typename... Args>
-struct AddSignatureNothrow<Ret(Args......) const volatile&&>
+struct AddSignatureNothrow<Ret(Args..., ...) const volatile&&>
 {
-    using type = Ret(Args......) const volatile&& noexcept;
+    using type = Ret(Args..., ...) const volatile&& noexcept;
 };
 
 // specializations for noexcept(false) are not necessary in my opinion because
@@ -905,145 +905,145 @@ struct RemoveSignatureVariadic
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......)>
+struct RemoveSignatureVariadic<Ret(Args..., ...)>
 {
     using type = Ret(Args...);
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const>
 {
     using type = Ret(Args...) const;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) volatile>
+struct RemoveSignatureVariadic<Ret(Args..., ...) volatile>
 {
     using type = Ret(Args...) volatile;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const volatile>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const volatile>
 {
     using type = Ret(Args...) const volatile;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......)&>
+struct RemoveSignatureVariadic<Ret(Args..., ...)&>
 {
     using type = Ret(Args...) &;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const&>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const&>
 {
     using type = Ret(Args...) const&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) volatile&>
+struct RemoveSignatureVariadic<Ret(Args..., ...) volatile&>
 {
     using type = Ret(Args...) volatile&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const volatile&>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const volatile&>
 {
     using type = Ret(Args...) const volatile&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) &&>
+struct RemoveSignatureVariadic<Ret(Args..., ...) &&>
 {
     using type = Ret(Args...) &&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const&&>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const&&>
 {
     using type = Ret(Args...) const&&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) volatile&&>
+struct RemoveSignatureVariadic<Ret(Args..., ...) volatile&&>
 {
     using type = Ret(Args...) volatile&&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const volatile&&>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const volatile&&>
 {
     using type = Ret(Args...) const volatile&&;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) noexcept>
 {
     using type = Ret(Args...) noexcept;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const noexcept>
 {
     using type = Ret(Args...) const noexcept;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) volatile noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) volatile noexcept>
 {
     using type = Ret(Args...) volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const volatile noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const volatile noexcept>
 {
     using type = Ret(Args...) const volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) & noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) & noexcept>
 {
     using type = Ret(Args...) & noexcept;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const& noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const& noexcept>
 {
     using type = Ret(Args...) const& noexcept;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) volatile& noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) volatile& noexcept>
 {
     using type = Ret(Args...) volatile& noexcept;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const volatile& noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const volatile& noexcept>
 {
     using type = Ret(Args...) const volatile& noexcept;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) && noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) && noexcept>
 {
     using type = Ret(Args...) && noexcept;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const&& noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const&& noexcept>
 {
     using type = Ret(Args...) const&& noexcept;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) volatile&& noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) volatile&& noexcept>
 {
     using type = Ret(Args...) volatile&& noexcept;
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVariadic<Ret(Args......) const volatile&& noexcept>
+struct RemoveSignatureVariadic<Ret(Args..., ...) const volatile&& noexcept>
 {
     using type = Ret(Args...) const volatile&& noexcept;
 };
@@ -1067,9 +1067,9 @@ struct RemoveSignatureConst<Ret(Args...) const>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const>
+struct RemoveSignatureConst<Ret(Args..., ...) const>
 {
-    using type = Ret(Args......);
+    using type = Ret(Args..., ...);
 };
 
 template<typename Ret, typename... Args>
@@ -1079,9 +1079,9 @@ struct RemoveSignatureConst<Ret(Args...) const volatile>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const volatile>
+struct RemoveSignatureConst<Ret(Args..., ...) const volatile>
 {
-    using type = Ret(Args......) volatile;
+    using type = Ret(Args..., ...) volatile;
 };
 
 template<typename Ret, typename... Args>
@@ -1091,9 +1091,9 @@ struct RemoveSignatureConst<Ret(Args...) const&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const&>
+struct RemoveSignatureConst<Ret(Args..., ...) const&>
 {
-    using type = Ret(Args......) &;
+    using type = Ret(Args..., ...) &;
 };
 
 template<typename Ret, typename... Args>
@@ -1103,9 +1103,9 @@ struct RemoveSignatureConst<Ret(Args...) const volatile&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const volatile&>
+struct RemoveSignatureConst<Ret(Args..., ...) const volatile&>
 {
-    using type = Ret(Args......) volatile&;
+    using type = Ret(Args..., ...) volatile&;
 };
 
 template<typename Ret, typename... Args>
@@ -1115,9 +1115,9 @@ struct RemoveSignatureConst<Ret(Args...) const&&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const&&>
+struct RemoveSignatureConst<Ret(Args..., ...) const&&>
 {
-    using type = Ret(Args......) &&;
+    using type = Ret(Args..., ...) &&;
 };
 
 template<typename Ret, typename... Args>
@@ -1127,9 +1127,9 @@ struct RemoveSignatureConst<Ret(Args...) const volatile&&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const volatile&&>
+struct RemoveSignatureConst<Ret(Args..., ...) const volatile&&>
 {
-    using type = Ret(Args......) volatile&&;
+    using type = Ret(Args..., ...) volatile&&;
 };
 
 template<typename Ret, typename... Args>
@@ -1139,9 +1139,9 @@ struct RemoveSignatureConst<Ret(Args...) const noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const noexcept>
+struct RemoveSignatureConst<Ret(Args..., ...) const noexcept>
 {
-    using type = Ret(Args......) noexcept;
+    using type = Ret(Args..., ...) noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1151,9 +1151,9 @@ struct RemoveSignatureConst<Ret(Args...) const volatile noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const volatile noexcept>
+struct RemoveSignatureConst<Ret(Args..., ...) const volatile noexcept>
 {
-    using type = Ret(Args......) volatile noexcept;
+    using type = Ret(Args..., ...) volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1163,9 +1163,9 @@ struct RemoveSignatureConst<Ret(Args...) const& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const& noexcept>
+struct RemoveSignatureConst<Ret(Args..., ...) const& noexcept>
 {
-    using type = Ret(Args......) & noexcept;
+    using type = Ret(Args..., ...) & noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1175,9 +1175,9 @@ struct RemoveSignatureConst<Ret(Args...) const volatile& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const volatile& noexcept>
+struct RemoveSignatureConst<Ret(Args..., ...) const volatile& noexcept>
 {
-    using type = Ret(Args......) volatile& noexcept;
+    using type = Ret(Args..., ...) volatile& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1187,9 +1187,9 @@ struct RemoveSignatureConst<Ret(Args...) const&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const&& noexcept>
+struct RemoveSignatureConst<Ret(Args..., ...) const&& noexcept>
 {
-    using type = Ret(Args......) && noexcept;
+    using type = Ret(Args..., ...) && noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1199,9 +1199,9 @@ struct RemoveSignatureConst<Ret(Args...) const volatile&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureConst<Ret(Args......) const volatile&& noexcept>
+struct RemoveSignatureConst<Ret(Args..., ...) const volatile&& noexcept>
 {
-    using type = Ret(Args......) volatile&& noexcept;
+    using type = Ret(Args..., ...) volatile&& noexcept;
 };
 
 template<typename Signature>
@@ -1222,9 +1222,9 @@ struct RemoveSignatureVolatile<Ret(Args...) volatile>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) volatile>
+struct RemoveSignatureVolatile<Ret(Args..., ...) volatile>
 {
-    using type = Ret(Args......);
+    using type = Ret(Args..., ...);
 };
 
 template<typename Ret, typename... Args>
@@ -1234,9 +1234,9 @@ struct RemoveSignatureVolatile<Ret(Args...) const volatile>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) const volatile>
+struct RemoveSignatureVolatile<Ret(Args..., ...) const volatile>
 {
-    using type = Ret(Args......) const;
+    using type = Ret(Args..., ...) const;
 };
 
 template<typename Ret, typename... Args>
@@ -1246,9 +1246,9 @@ struct RemoveSignatureVolatile<Ret(Args...) volatile&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) volatile&>
+struct RemoveSignatureVolatile<Ret(Args..., ...) volatile&>
 {
-    using type = Ret(Args......) &;
+    using type = Ret(Args..., ...) &;
 };
 
 template<typename Ret, typename... Args>
@@ -1258,9 +1258,9 @@ struct RemoveSignatureVolatile<Ret(Args...) const volatile&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) const volatile&>
+struct RemoveSignatureVolatile<Ret(Args..., ...) const volatile&>
 {
-    using type = Ret(Args......) const&;
+    using type = Ret(Args..., ...) const&;
 };
 
 template<typename Ret, typename... Args>
@@ -1270,9 +1270,9 @@ struct RemoveSignatureVolatile<Ret(Args...) volatile&&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) volatile&&>
+struct RemoveSignatureVolatile<Ret(Args..., ...) volatile&&>
 {
-    using type = Ret(Args......) &&;
+    using type = Ret(Args..., ...) &&;
 };
 
 template<typename Ret, typename... Args>
@@ -1282,9 +1282,9 @@ struct RemoveSignatureVolatile<Ret(Args...) const volatile&&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) const volatile&&>
+struct RemoveSignatureVolatile<Ret(Args..., ...) const volatile&&>
 {
-    using type = Ret(Args......) const&&;
+    using type = Ret(Args..., ...) const&&;
 };
 
 template<typename Ret, typename... Args>
@@ -1294,9 +1294,9 @@ struct RemoveSignatureVolatile<Ret(Args...) volatile noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) volatile noexcept>
+struct RemoveSignatureVolatile<Ret(Args..., ...) volatile noexcept>
 {
-    using type = Ret(Args......) noexcept;
+    using type = Ret(Args..., ...) noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1306,9 +1306,9 @@ struct RemoveSignatureVolatile<Ret(Args...) const volatile noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) const volatile noexcept>
+struct RemoveSignatureVolatile<Ret(Args..., ...) const volatile noexcept>
 {
-    using type = Ret(Args......) const noexcept;
+    using type = Ret(Args..., ...) const noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1318,9 +1318,9 @@ struct RemoveSignatureVolatile<Ret(Args...) volatile& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) volatile& noexcept>
+struct RemoveSignatureVolatile<Ret(Args..., ...) volatile& noexcept>
 {
-    using type = Ret(Args......) & noexcept;
+    using type = Ret(Args..., ...) & noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1330,9 +1330,9 @@ struct RemoveSignatureVolatile<Ret(Args...) const volatile& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) const volatile& noexcept>
+struct RemoveSignatureVolatile<Ret(Args..., ...) const volatile& noexcept>
 {
-    using type = Ret(Args......) const& noexcept;
+    using type = Ret(Args..., ...) const& noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1342,9 +1342,9 @@ struct RemoveSignatureVolatile<Ret(Args...) volatile&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) volatile&& noexcept>
+struct RemoveSignatureVolatile<Ret(Args..., ...) volatile&& noexcept>
 {
-    using type = Ret(Args......) && noexcept;
+    using type = Ret(Args..., ...) && noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1354,9 +1354,9 @@ struct RemoveSignatureVolatile<Ret(Args...) const volatile&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureVolatile<Ret(Args......) const volatile&& noexcept>
+struct RemoveSignatureVolatile<Ret(Args..., ...) const volatile&& noexcept>
 {
-    using type = Ret(Args......) const&& noexcept;
+    using type = Ret(Args..., ...) const&& noexcept;
 };
 
 template<typename Signature>
@@ -1378,9 +1378,9 @@ struct RemoveSignatureLvalue<Ret(Args...)&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureLvalue<Ret(Args......)&>
+struct RemoveSignatureLvalue<Ret(Args..., ...)&>
 {
-    using type = Ret(Args......);
+    using type = Ret(Args..., ...);
 };
 
 template<typename Ret, typename... Args>
@@ -1390,9 +1390,9 @@ struct RemoveSignatureLvalue<Ret(Args...) const&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureLvalue<Ret(Args......) const&>
+struct RemoveSignatureLvalue<Ret(Args..., ...) const&>
 {
-    using type = Ret(Args......) const;
+    using type = Ret(Args..., ...) const;
 };
 
 template<typename Ret, typename... Args>
@@ -1402,9 +1402,9 @@ struct RemoveSignatureLvalue<Ret(Args...) volatile&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureLvalue<Ret(Args......) volatile&>
+struct RemoveSignatureLvalue<Ret(Args..., ...) volatile&>
 {
-    using type = Ret(Args......) volatile;
+    using type = Ret(Args..., ...) volatile;
 };
 
 template<typename Ret, typename... Args>
@@ -1414,9 +1414,9 @@ struct RemoveSignatureLvalue<Ret(Args...) const volatile&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureLvalue<Ret(Args......) const volatile&>
+struct RemoveSignatureLvalue<Ret(Args..., ...) const volatile&>
 {
-    using type = Ret(Args......) const volatile;
+    using type = Ret(Args..., ...) const volatile;
 };
 
 template<typename Ret, typename... Args>
@@ -1426,9 +1426,9 @@ struct RemoveSignatureLvalue<Ret(Args...) & noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureLvalue<Ret(Args......) & noexcept>
+struct RemoveSignatureLvalue<Ret(Args..., ...) & noexcept>
 {
-    using type = Ret(Args......) noexcept;
+    using type = Ret(Args..., ...) noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1438,9 +1438,9 @@ struct RemoveSignatureLvalue<Ret(Args...) const& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureLvalue<Ret(Args......) const& noexcept>
+struct RemoveSignatureLvalue<Ret(Args..., ...) const& noexcept>
 {
-    using type = Ret(Args......) const noexcept;
+    using type = Ret(Args..., ...) const noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1450,9 +1450,9 @@ struct RemoveSignatureLvalue<Ret(Args...) volatile& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureLvalue<Ret(Args......) volatile& noexcept>
+struct RemoveSignatureLvalue<Ret(Args..., ...) volatile& noexcept>
 {
-    using type = Ret(Args......) volatile noexcept;
+    using type = Ret(Args..., ...) volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1462,9 +1462,9 @@ struct RemoveSignatureLvalue<Ret(Args...) const volatile& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureLvalue<Ret(Args......) const volatile& noexcept>
+struct RemoveSignatureLvalue<Ret(Args..., ...) const volatile& noexcept>
 {
-    using type = Ret(Args......) const volatile noexcept;
+    using type = Ret(Args..., ...) const volatile noexcept;
 };
 
 template<typename Signature>
@@ -1485,9 +1485,9 @@ struct RemoveSignatureRvalue<Ret(Args...) &&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureRvalue<Ret(Args......) &&>
+struct RemoveSignatureRvalue<Ret(Args..., ...) &&>
 {
-    using type = Ret(Args......);
+    using type = Ret(Args..., ...);
 };
 
 template<typename Ret, typename... Args>
@@ -1497,9 +1497,9 @@ struct RemoveSignatureRvalue<Ret(Args...) const&&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureRvalue<Ret(Args......) const&&>
+struct RemoveSignatureRvalue<Ret(Args..., ...) const&&>
 {
-    using type = Ret(Args......) const;
+    using type = Ret(Args..., ...) const;
 };
 
 template<typename Ret, typename... Args>
@@ -1509,9 +1509,9 @@ struct RemoveSignatureRvalue<Ret(Args...) volatile&&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureRvalue<Ret(Args......) volatile&&>
+struct RemoveSignatureRvalue<Ret(Args..., ...) volatile&&>
 {
-    using type = Ret(Args......) volatile;
+    using type = Ret(Args..., ...) volatile;
 };
 
 template<typename Ret, typename... Args>
@@ -1521,9 +1521,9 @@ struct RemoveSignatureRvalue<Ret(Args...) const volatile&&>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureRvalue<Ret(Args......) const volatile&&>
+struct RemoveSignatureRvalue<Ret(Args..., ...) const volatile&&>
 {
-    using type = Ret(Args......) const volatile;
+    using type = Ret(Args..., ...) const volatile;
 };
 
 template<typename Ret, typename... Args>
@@ -1533,9 +1533,9 @@ struct RemoveSignatureRvalue<Ret(Args...) && noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureRvalue<Ret(Args......) && noexcept>
+struct RemoveSignatureRvalue<Ret(Args..., ...) && noexcept>
 {
-    using type = Ret(Args......) noexcept;
+    using type = Ret(Args..., ...) noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1545,9 +1545,9 @@ struct RemoveSignatureRvalue<Ret(Args...) const&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureRvalue<Ret(Args......) const&& noexcept>
+struct RemoveSignatureRvalue<Ret(Args..., ...) const&& noexcept>
 {
-    using type = Ret(Args......) const noexcept;
+    using type = Ret(Args..., ...) const noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1557,9 +1557,9 @@ struct RemoveSignatureRvalue<Ret(Args...) volatile&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureRvalue<Ret(Args......) volatile&& noexcept>
+struct RemoveSignatureRvalue<Ret(Args..., ...) volatile&& noexcept>
 {
-    using type = Ret(Args......) volatile noexcept;
+    using type = Ret(Args..., ...) volatile noexcept;
 };
 
 template<typename Ret, typename... Args>
@@ -1569,9 +1569,9 @@ struct RemoveSignatureRvalue<Ret(Args...) const volatile&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureRvalue<Ret(Args......) const volatile&& noexcept>
+struct RemoveSignatureRvalue<Ret(Args..., ...) const volatile&& noexcept>
 {
-    using type = Ret(Args......) const volatile noexcept;
+    using type = Ret(Args..., ...) const volatile noexcept;
 };
 
 template<typename Signature>
@@ -1592,9 +1592,9 @@ struct RemoveSignatureNothrow<Ret(Args...) noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) noexcept>
 {
-    using type = Ret(Args......);
+    using type = Ret(Args..., ...);
 };
 
 template<typename Ret, typename... Args>
@@ -1604,9 +1604,9 @@ struct RemoveSignatureNothrow<Ret(Args...) const noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) const noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) const noexcept>
 {
-    using type = Ret(Args......) const;
+    using type = Ret(Args..., ...) const;
 };
 
 template<typename Ret, typename... Args>
@@ -1616,9 +1616,9 @@ struct RemoveSignatureNothrow<Ret(Args...) volatile noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) volatile noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) volatile noexcept>
 {
-    using type = Ret(Args......) volatile;
+    using type = Ret(Args..., ...) volatile;
 };
 
 template<typename Ret, typename... Args>
@@ -1628,9 +1628,9 @@ struct RemoveSignatureNothrow<Ret(Args...) const volatile noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) const volatile noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) const volatile noexcept>
 {
-    using type = Ret(Args......) const volatile;
+    using type = Ret(Args..., ...) const volatile;
 };
 
 template<typename Ret, typename... Args>
@@ -1640,9 +1640,9 @@ struct RemoveSignatureNothrow<Ret(Args...) & noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) & noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) & noexcept>
 {
-    using type = Ret(Args......) &;
+    using type = Ret(Args..., ...) &;
 };
 
 template<typename Ret, typename... Args>
@@ -1652,9 +1652,9 @@ struct RemoveSignatureNothrow<Ret(Args...) const& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) const& noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) const& noexcept>
 {
-    using type = Ret(Args......) const&;
+    using type = Ret(Args..., ...) const&;
 };
 
 template<typename Ret, typename... Args>
@@ -1664,9 +1664,9 @@ struct RemoveSignatureNothrow<Ret(Args...) volatile& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) volatile& noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) volatile& noexcept>
 {
-    using type = Ret(Args......) volatile&;
+    using type = Ret(Args..., ...) volatile&;
 };
 
 template<typename Ret, typename... Args>
@@ -1676,9 +1676,9 @@ struct RemoveSignatureNothrow<Ret(Args...) const volatile& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) const volatile& noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) const volatile& noexcept>
 {
-    using type = Ret(Args......) const volatile&;
+    using type = Ret(Args..., ...) const volatile&;
 };
 
 template<typename Ret, typename... Args>
@@ -1688,9 +1688,9 @@ struct RemoveSignatureNothrow<Ret(Args...) && noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) && noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) && noexcept>
 {
-    using type = Ret(Args......) &&;
+    using type = Ret(Args..., ...) &&;
 };
 
 template<typename Ret, typename... Args>
@@ -1700,9 +1700,9 @@ struct RemoveSignatureNothrow<Ret(Args...) const&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) const&& noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) const&& noexcept>
 {
-    using type = Ret(Args......) const&&;
+    using type = Ret(Args..., ...) const&&;
 };
 
 template<typename Ret, typename... Args>
@@ -1712,9 +1712,9 @@ struct RemoveSignatureNothrow<Ret(Args...) volatile&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) volatile&& noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) volatile&& noexcept>
 {
-    using type = Ret(Args......) volatile&&;
+    using type = Ret(Args..., ...) volatile&&;
 };
 
 template<typename Ret, typename... Args>
@@ -1724,9 +1724,9 @@ struct RemoveSignatureNothrow<Ret(Args...) const volatile&& noexcept>
 };
 
 template<typename Ret, typename... Args>
-struct RemoveSignatureNothrow<Ret(Args......) const volatile&& noexcept>
+struct RemoveSignatureNothrow<Ret(Args..., ...) const volatile&& noexcept>
 {
-    using type = Ret(Args......) const volatile&&;
+    using type = Ret(Args..., ...) const volatile&&;
 };
 
 template<typename Signature>
@@ -1957,7 +1957,7 @@ struct RemoveSignatureQualifiers
 {
     using type = RemoveSignatureVariadicT<
         RemoveSignatureConstT<RemoveSignatureVolatileT<RemoveSignatureLvalueT<
-            RemoveSignatureRvalue<RemoveSignatureNothrowT<Signature>>>>>>;
+            RemoveSignatureRvalueT<RemoveSignatureNothrowT<Signature>>>>>>;
 };
 
 template<typename Signature>
@@ -2113,7 +2113,7 @@ struct IsVariadicSignatureHelper : public std::false_type
 {};
 
 template<typename Ret, typename... Args>
-struct IsVariadicSignatureHelper<Ret(Args......)> : public std::true_type
+struct IsVariadicSignatureHelper<Ret(Args..., ...)> : public std::true_type
 {};
 } // namespace detail
 
