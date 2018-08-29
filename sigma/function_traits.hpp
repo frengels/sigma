@@ -35,12 +35,12 @@ struct _is_convertible<ArgN, std::tuple<From...>, std::tuple<To...>>
     : public std::integral_constant<
           bool,
           ((sizeof...(From) >= sizeof...(To)) && ArgN > sizeof...(To)) ||
-              std::is_convertible<
-                  std::tuple_element<ArgN, std::tuple<From...>>,
-                  std::tuple_element<ArgN, std::tuple<To...>>>::value &&
-                  _is_convertible<ArgN + 1,
-                                  std::tuple<From...>,
-                                  std::tuple<To...>>::value>
+              (std::is_convertible<
+                   std::tuple_element<ArgN, std::tuple<From...>>,
+                   std::tuple_element<ArgN, std::tuple<To...>>>::value &&
+               _is_convertible<ArgN + 1,
+                               std::tuple<From...>,
+                               std::tuple<To...>>::value)>
 {};
 
 template<typename Returned, typename Required>
@@ -2402,7 +2402,7 @@ struct IsNothrowSignatureHelper : public std::false_type
 {};
 
 template<typename Ret, typename... Args>
-struct IsNothrowSignatureHelper<Ret(Args...) const> : public std::true_type
+struct IsNothrowSignatureHelper<Ret(Args...) noexcept> : public std::true_type
 {};
 } // namespace detail
 
