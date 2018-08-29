@@ -890,6 +890,9 @@ struct AddSignatureNothrow<Ret(Args......) const volatile&&>
     using type = Ret(Args......) const volatile&& noexcept;
 };
 
+// specializations for noexcept(false) are not necessary in my opinion because
+// RemoveSignatureNothrow already handles this functionality
+
 template<typename Signature>
 using AddSignatureNothrowT = typename AddSignatureNothrow<Signature>::type;
 
