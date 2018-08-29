@@ -59,35 +59,841 @@ template<typename Ret, typename Ret2, typename... Args, typename... Args2>
 {};
 */
 
-template<typename Signature>
-struct get_class_from_mem_fn;
-
-template<typename T, typename Ret, typename... Args>
-struct get_class_from_mem_fn<Ret (T::*)(Args...)>
-{
-    using type = T;
-};
-
-template<typename T, typename Ret, typename... Args>
-struct get_class_from_mem_fn<Ret (T::*)(Args...) const>
-{
-    using type = T;
-};
+// add function qualifiers
 
 template<typename Signature>
-struct is_const_member_function_pointer : public std::false_type
-{};
+struct AddSignatureVariadic
+{
+    using type = Signature;
+};
 
-template<typename T, typename Ret, typename... Args>
-struct is_const_member_function_pointer<Ret (T::*)(Args...) const>
-    : public std::true_type
-{};
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...)>
+{
+    using type = Ret(Args......);
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const>
+{
+    using type = Ret(Args......) const;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) volatile>
+{
+    using type = Ret(Args......) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const volatile>
+{
+    using type = Ret(Args......) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...)&>
+{
+    using type = Ret(Args......) &;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const&>
+{
+    using type = Ret(Args......) const&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) volatile&>
+{
+    using type = Ret(Args......) volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const volatile&>
+{
+    using type = Ret(Args......) const volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) &&>
+{
+    using type = Ret(Args......) &&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const&&>
+{
+    using type = Ret(Args......) const&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) volatile&&>
+{
+    using type = Ret(Args......) volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const volatile&&>
+{
+    using type = Ret(Args......) const volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) noexcept>
+{
+    using type = Ret(Args......) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const noexcept>
+{
+    using type = Ret(Args......) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) volatile noexcept>
+{
+    using type = Ret(Args......) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const volatile noexcept>
+{
+    using type = Ret(Args......) const volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) & noexcept>
+{
+    using type = Ret(Args......) & noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const& noexcept>
+{
+    using type = Ret(Args......) const& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) volatile& noexcept>
+{
+    using type = Ret(Args......) volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const volatile& noexcept>
+{
+    using type = Ret(Args......) const volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) && noexcept>
+{
+    using type = Ret(Args......) && noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const&& noexcept>
+{
+    using type = Ret(Args......) const&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) volatile&& noexcept>
+{
+    using type = Ret(Args......) volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVariadic<Ret(Args...) const volatile&& noexcept>
+{
+    using type = Ret(Args......) const volatile&& noexcept;
+};
+
+template<typename Signature>
+using AddSignatureVariadicT = typename AddSignatureVariadic<Signature>::type;
+
+// add const qualifier
+
+template<typename Signature>
+struct AddSignatureConst
+{
+    using type = Signature;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...)>
+{
+    using type = Ret(Args...) const;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......)>
+{
+    using type = Ret(Args......) const;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...) volatile>
+{
+    using type = Ret(Args...) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......) volatile>
+{
+    using type = Ret(Args......) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...)&>
+{
+    using type = Ret(Args...) const&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......)&>
+{
+    using type = Ret(Args......) const&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...) volatile&>
+{
+    using type = Ret(Args...) const volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......) volatile&>
+{
+    using type = Ret(Args......) const volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...) &&>
+{
+    using type = Ret(Args...) const&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......) &&>
+{
+    using type = Ret(Args......) const&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...) volatile&&>
+{
+    using type = Ret(Args...) const volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......) volatile&&>
+{
+    using type = Ret(Args......) const volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...) noexcept>
+{
+    using type = Ret(Args...) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......) noexcept>
+{
+    using type = Ret(Args......) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...) volatile noexcept>
+{
+    using type = Ret(Args...) const volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......) volatile noexcept>
+{
+    using type = Ret(Args......) const volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...) & noexcept>
+{
+    using type = Ret(Args...) const& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......) & noexcept>
+{
+    using type = Ret(Args......) const& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...) volatile& noexcept>
+{
+    using type = Ret(Args...) const volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......) volatile& noexcept>
+{
+    using type = Ret(Args......) const volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...) && noexcept>
+{
+    using type = Ret(Args...) const&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......) && noexcept>
+{
+    using type = Ret(Args......) const&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args...) volatile&& noexcept>
+{
+    using type = Ret(Args...) const volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureConst<Ret(Args......) volatile&& noexcept>
+{
+    using type = Ret(Args......) const volatile&& noexcept;
+};
+
+template<typename Signature>
+using AddSignatureConstT = typename AddSignatureConst<Signature>::type;
+
+// add volatile qualifier
+
+template<typename Signature>
+struct AddSignatureVolatile
+{
+    using type = Signature;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...)>
+{
+    using type = Ret(Args...) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......)>
+{
+    using type = Ret(Args......) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...) const>
+{
+    using type = Ret(Args...) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......) const>
+{
+    using type = Ret(Args......) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...)&>
+{
+    using type = Ret(Args...) volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......)&>
+{
+    using type = Ret(Args......) volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...) const&>
+{
+    using type = Ret(Args...) const volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......) const&>
+{
+    using type = Ret(Args......) const volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...) &&>
+{
+    using type = Ret(Args...) volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......) &&>
+{
+    using type = Ret(Args......) volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...) const&&>
+{
+    using type = Ret(Args...) const volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......) const&&>
+{
+    using type = Ret(Args......) const volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...) noexcept>
+{
+    using type = Ret(Args...) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......) noexcept>
+{
+    using type = Ret(Args......) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...) const noexcept>
+{
+    using type = Ret(Args...) const volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......) const noexcept>
+{
+    using type = Ret(Args......) const volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...) & noexcept>
+{
+    using type = Ret(Args...) volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......) & noexcept>
+{
+    using type = Ret(Args......) volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...) const& noexcept>
+{
+    using type = Ret(Args...) const volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......) const& noexcept>
+{
+    using type = Ret(Args......) const volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...) && noexcept>
+{
+    using type = Ret(Args...) volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......) && noexcept>
+{
+    using type = Ret(Args......) volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args...) const&& noexcept>
+{
+    using type = Ret(Args...) const volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureVolatile<Ret(Args......) const&& noexcept>
+{
+    using type = Ret(Args......) const volatile&& noexcept;
+};
+
+template<typename Signature>
+using AddSignatureVolatileT = typename AddSignatureVolatile<Signature>::type;
+
+// add lvalue qualifier
+
+template<typename Signature>
+struct AddSignatureLvalue
+{
+    using type = Signature;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args...)>
+{
+    using type = Ret(Args...) &;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args......)>
+{
+    using type = Ret(Args......) &;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args...) const>
+{
+    using type = Ret(Args...) const&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args......) const>
+{
+    using type = Ret(Args......) const&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args...) volatile>
+{
+    using type = Ret(Args...) volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args......) volatile>
+{
+    using type = Ret(Args......) volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args...) const volatile>
+{
+    using type = Ret(Args...) const volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args......) const volatile>
+{
+    using type = Ret(Args......) const volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args...) noexcept>
+{
+    using type = Ret(Args...) & noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args......) noexcept>
+{
+    using type = Ret(Args......) & noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args...) const noexcept>
+{
+    using type = Ret(Args...) const& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args......) const noexcept>
+{
+    using type = Ret(Args......) const& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args...) volatile noexcept>
+{
+    using type = Ret(Args...) volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args......) volatile noexcept>
+{
+    using type = Ret(Args......) volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args...) const volatile noexcept>
+{
+    using type = Ret(Args...) const volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureLvalue<Ret(Args......) const volatile noexcept>
+{
+    using type = Ret(Args......) const volatile& noexcept;
+};
+
+template<typename Signature>
+using AddSignatureLvalueT = typename AddSignatureLvalue<Signature>::type;
+
+// add rvalue qualifier
+
+template<typename Signature>
+struct AddSignatureRvalue
+{
+    using type = Signature;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args...)>
+{
+    using type = Ret(Args...) &&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args......)>
+{
+    using type = Ret(Args......) &&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args...) const>
+{
+    using type = Ret(Args...) const&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args......) const>
+{
+    using type = Ret(Args......) const&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args...) volatile>
+{
+    using type = Ret(Args...) volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args......) volatile>
+{
+    using type = Ret(Args......) volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args...) const volatile>
+{
+    using type = Ret(Args...) const volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args......) const volatile>
+{
+    using type = Ret(Args......) const volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args...) noexcept>
+{
+    using type = Ret(Args...) && noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args......) noexcept>
+{
+    using type = Ret(Args......) && noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args...) const noexcept>
+{
+    using type = Ret(Args...) const&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args......) const noexcept>
+{
+    using type = Ret(Args......) const&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args...) volatile noexcept>
+{
+    using type = Ret(Args...) volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args......) volatile noexcept>
+{
+    using type = Ret(Args......) volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args...) const volatile noexcept>
+{
+    using type = Ret(Args...) const volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureRvalue<Ret(Args......) const volatile noexcept>
+{
+    using type = Ret(Args......) const volatile&& noexcept;
+};
+
+template<typename Signature>
+using AddSignatureRvalueT = typename AddSignatureRvalue<Signature>::type;
+
+// add nothrow qualifiers
+
+template<typename Signature>
+struct AddSignatureNothrow
+{
+    using type = Signature;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...)>
+{
+    using type = Ret(Args...) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......)>
+{
+    using type = Ret(Args......) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...) const>
+{
+    using type = Ret(Args...) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......) const>
+{
+    using type = Ret(Args......) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...) volatile>
+{
+    using type = Ret(Args...) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......) volatile>
+{
+    using type = Ret(Args......) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...) const volatile>
+{
+    using type = Ret(Args...) const volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......) const volatile>
+{
+    using type = Ret(Args......) const volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...)&>
+{
+    using type = Ret(Args...) & noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......)&>
+{
+    using type = Ret(Args......) & noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...) const&>
+{
+    using type = Ret(Args...) const& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......) const&>
+{
+    using type = Ret(Args......) const& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...) volatile&>
+{
+    using type = Ret(Args...) volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......) volatile&>
+{
+    using type = Ret(Args......) volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...) const volatile&>
+{
+    using type = Ret(Args...) const volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......) const volatile&>
+{
+    using type = Ret(Args......) const volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...) &&>
+{
+    using type = Ret(Args...) && noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......) &&>
+{
+    using type = Ret(Args......) && noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...) const&&>
+{
+    using type = Ret(Args...) const&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......) const&&>
+{
+    using type = Ret(Args......) const&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...) volatile&&>
+{
+    using type = Ret(Args...) volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......) volatile&&>
+{
+    using type = Ret(Args......) volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args...) const volatile&&>
+{
+    using type = Ret(Args...) const volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct AddSignatureNothrow<Ret(Args......) const volatile&&>
+{
+    using type = Ret(Args......) const volatile&& noexcept;
+};
+
+template<typename Signature>
+using AddSignatureNothrowT = typename AddSignatureNothrow<Signature>::type;
 
 // decay function qualifiers
-
-// TODO write remove qualifier functions for all qualifiers and simplify
-// isconstfunction, etc. to use these qualifier removers so you're left with
-// R(A...) qualifier
 
 template<typename Signature>
 struct RemoveSignatureVariadic
