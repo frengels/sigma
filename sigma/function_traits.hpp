@@ -5,6 +5,20 @@
 
 namespace sigma
 {
+namespace detail
+{
+// these 2 structs are used for conditional inheritance in template
+// specialization
+struct Empty
+{};
+
+template<typename T>
+struct Identity
+{
+    using type = T;
+};
+} // namespace detail
+
 template<typename Returned, typename Required>
 struct is_convertible_return
     : public std::integral_constant<
@@ -69,1330 +83,1564 @@ struct is_const_member_function_pointer<Ret (T::*)(Args...) const>
     : public std::true_type
 {};
 
+// decay function qualifiers
+
+// TODO write remove qualifier functions for all qualifiers and simplify
+// isconstfunction, etc. to use these qualifier removers so you're left with
+// R(A...) qualifier
+
+template<typename Signature>
+struct RemoveSignatureVariadic
+{
+    using type = Signature;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......)>
+{
+    using type = Ret(Args...);
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const>
+{
+    using type = Ret(Args...) const;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) volatile>
+{
+    using type = Ret(Args...) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const volatile>
+{
+    using type = Ret(Args...) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......)&>
+{
+    using type = Ret(Args...) &;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const&>
+{
+    using type = Ret(Args...) const&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) volatile&>
+{
+    using type = Ret(Args...) volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const volatile&>
+{
+    using type = Ret(Args...) const volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) &&>
+{
+    using type = Ret(Args...) &&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const&&>
+{
+    using type = Ret(Args...) const&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) volatile&&>
+{
+    using type = Ret(Args...) volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const volatile&&>
+{
+    using type = Ret(Args...) const volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) noexcept>
+{
+    using type = Ret(Args...) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const noexcept>
+{
+    using type = Ret(Args...) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) volatile noexcept>
+{
+    using type = Ret(Args...) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const volatile noexcept>
+{
+    using type = Ret(Args...) const volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) & noexcept>
+{
+    using type = Ret(Args...) & noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const& noexcept>
+{
+    using type = Ret(Args...) const& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) volatile& noexcept>
+{
+    using type = Ret(Args...) volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const volatile& noexcept>
+{
+    using type = Ret(Args...) const volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) && noexcept>
+{
+    using type = Ret(Args...) && noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const&& noexcept>
+{
+    using type = Ret(Args...) const&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) volatile&& noexcept>
+{
+    using type = Ret(Args...) volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVariadic<Ret(Args......) const volatile&& noexcept>
+{
+    using type = Ret(Args...) const volatile&& noexcept;
+};
+
+template<typename Signature>
+using RemoveSignatureVariadicT =
+    typename RemoveSignatureVariadic<Signature>::type;
+
+// removing const from signatures
+
+template<typename Signature>
+struct RemoveSignatureConst
+{
+    using type = Signature;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const>
+{
+    using type = Ret(Args...);
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const>
+{
+    using type = Ret(Args......);
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const volatile>
+{
+    using type = Ret(Args...) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const volatile>
+{
+    using type = Ret(Args......) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const&>
+{
+    using type = Ret(Args...) &;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const&>
+{
+    using type = Ret(Args......) &;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const volatile&>
+{
+    using type = Ret(Args...) volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const volatile&>
+{
+    using type = Ret(Args......) volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const&&>
+{
+    using type = Ret(Args...) &&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const&&>
+{
+    using type = Ret(Args......) &&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const volatile&&>
+{
+    using type = Ret(Args...) volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const volatile&&>
+{
+    using type = Ret(Args......) volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const noexcept>
+{
+    using type = Ret(Args...) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const noexcept>
+{
+    using type = Ret(Args......) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const volatile noexcept>
+{
+    using type = Ret(Args...) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const volatile noexcept>
+{
+    using type = Ret(Args......) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const& noexcept>
+{
+    using type = Ret(Args...) & noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const& noexcept>
+{
+    using type = Ret(Args......) & noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const volatile& noexcept>
+{
+    using type = Ret(Args...) volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const volatile& noexcept>
+{
+    using type = Ret(Args......) volatile& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const&& noexcept>
+{
+    using type = Ret(Args...) && noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const&& noexcept>
+{
+    using type = Ret(Args......) && noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args...) const volatile&& noexcept>
+{
+    using type = Ret(Args...) volatile&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureConst<Ret(Args......) const volatile&& noexcept>
+{
+    using type = Ret(Args......) volatile&& noexcept;
+};
+
+template<typename Signature>
+using RemoveSignatureConstT = typename RemoveSignatureConst<Signature>::type;
+
+// remove volatile from signature
+
+template<typename Signature>
+struct RemoveSignatureVolatile
+{
+    using type = Signature;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) volatile>
+{
+    using type = Ret(Args...);
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) volatile>
+{
+    using type = Ret(Args......);
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) const volatile>
+{
+    using type = Ret(Args...) const;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) const volatile>
+{
+    using type = Ret(Args......) const;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) volatile&>
+{
+    using type = Ret(Args...) &;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) volatile&>
+{
+    using type = Ret(Args......) &;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) const volatile&>
+{
+    using type = Ret(Args...) const&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) const volatile&>
+{
+    using type = Ret(Args......) const&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) volatile&&>
+{
+    using type = Ret(Args...) &&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) volatile&&>
+{
+    using type = Ret(Args......) &&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) const volatile&&>
+{
+    using type = Ret(Args...) const&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) const volatile&&>
+{
+    using type = Ret(Args......) const&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) volatile noexcept>
+{
+    using type = Ret(Args...) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) volatile noexcept>
+{
+    using type = Ret(Args......) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) const volatile noexcept>
+{
+    using type = Ret(Args...) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) const volatile noexcept>
+{
+    using type = Ret(Args......) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) volatile& noexcept>
+{
+    using type = Ret(Args...) & noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) volatile& noexcept>
+{
+    using type = Ret(Args......) & noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) const volatile& noexcept>
+{
+    using type = Ret(Args...) const& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) const volatile& noexcept>
+{
+    using type = Ret(Args......) const& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) volatile&& noexcept>
+{
+    using type = Ret(Args...) && noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) volatile&& noexcept>
+{
+    using type = Ret(Args......) && noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args...) const volatile&& noexcept>
+{
+    using type = Ret(Args...) const&& noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureVolatile<Ret(Args......) const volatile&& noexcept>
+{
+    using type = Ret(Args......) const&& noexcept;
+};
+
+template<typename Signature>
+using RemoveSignatureVolatileT =
+    typename RemoveSignatureVolatile<Signature>::type;
+
+// remove lvalue qualifier from signature
+
+template<typename Signature>
+struct RemoveSignatureLvalue
+{
+    using type = Signature;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args...)&>
+{
+    using type = Ret(Args...);
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args......)&>
+{
+    using type = Ret(Args......);
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args...) const&>
+{
+    using type = Ret(Args...) const;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args......) const&>
+{
+    using type = Ret(Args......) const;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args...) volatile&>
+{
+    using type = Ret(Args...) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args......) volatile&>
+{
+    using type = Ret(Args......) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args...) const volatile&>
+{
+    using type = Ret(Args...) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args......) const volatile&>
+{
+    using type = Ret(Args......) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args...) & noexcept>
+{
+    using type = Ret(Args...) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args......) & noexcept>
+{
+    using type = Ret(Args......) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args...) const& noexcept>
+{
+    using type = Ret(Args...) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args......) const& noexcept>
+{
+    using type = Ret(Args......) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args...) volatile& noexcept>
+{
+    using type = Ret(Args...) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args......) volatile& noexcept>
+{
+    using type = Ret(Args......) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args...) const volatile& noexcept>
+{
+    using type = Ret(Args...) const volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureLvalue<Ret(Args......) const volatile& noexcept>
+{
+    using type = Ret(Args......) const volatile noexcept;
+};
+
+template<typename Signature>
+using RemoveSignatureLvalueT = typename RemoveSignatureLvalue<Signature>::type;
+
+// remove rvalue qualifier from signature
+
+template<typename Signature>
+struct RemoveSignatureRvalue
+{
+    using type = Signature;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args...) &&>
+{
+    using type = Ret(Args...);
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args......) &&>
+{
+    using type = Ret(Args......);
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args...) const&&>
+{
+    using type = Ret(Args...) const;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args......) const&&>
+{
+    using type = Ret(Args......) const;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args...) volatile&&>
+{
+    using type = Ret(Args...) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args......) volatile&&>
+{
+    using type = Ret(Args......) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args...) const volatile&&>
+{
+    using type = Ret(Args...) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args......) const volatile&&>
+{
+    using type = Ret(Args......) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args...) && noexcept>
+{
+    using type = Ret(Args...) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args......) && noexcept>
+{
+    using type = Ret(Args......) noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args...) const&& noexcept>
+{
+    using type = Ret(Args...) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args......) const&& noexcept>
+{
+    using type = Ret(Args......) const noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args...) volatile&& noexcept>
+{
+    using type = Ret(Args...) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args......) volatile&& noexcept>
+{
+    using type = Ret(Args......) volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args...) const volatile&& noexcept>
+{
+    using type = Ret(Args...) const volatile noexcept;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureRvalue<Ret(Args......) const volatile&& noexcept>
+{
+    using type = Ret(Args......) const volatile noexcept;
+};
+
+template<typename Signature>
+using RemoveSignatureRvalueT = typename RemoveSignatureRvalue<Signature>::type;
+
+// remove noexcept qualifier from signature
+
+template<typename Signature>
+struct RemoveSignatureNoexcept
+{
+    using type = Signature;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) noexcept>
+{
+    using type = Ret(Args...);
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) noexcept>
+{
+    using type = Ret(Args......);
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) const noexcept>
+{
+    using type = Ret(Args...) const;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) const noexcept>
+{
+    using type = Ret(Args......) const;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) volatile noexcept>
+{
+    using type = Ret(Args...) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) volatile noexcept>
+{
+    using type = Ret(Args......) volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) const volatile noexcept>
+{
+    using type = Ret(Args...) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) const volatile noexcept>
+{
+    using type = Ret(Args......) const volatile;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) & noexcept>
+{
+    using type = Ret(Args...) &;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) & noexcept>
+{
+    using type = Ret(Args......) &;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) const& noexcept>
+{
+    using type = Ret(Args...) const&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) const& noexcept>
+{
+    using type = Ret(Args......) const&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) volatile& noexcept>
+{
+    using type = Ret(Args...) volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) volatile& noexcept>
+{
+    using type = Ret(Args......) volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) const volatile& noexcept>
+{
+    using type = Ret(Args...) const volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) const volatile& noexcept>
+{
+    using type = Ret(Args......) const volatile&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) && noexcept>
+{
+    using type = Ret(Args...) &&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) && noexcept>
+{
+    using type = Ret(Args......) &&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) const&& noexcept>
+{
+    using type = Ret(Args...) const&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) const&& noexcept>
+{
+    using type = Ret(Args......) const&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) volatile&& noexcept>
+{
+    using type = Ret(Args...) volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) volatile&& noexcept>
+{
+    using type = Ret(Args......) volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args...) const volatile&& noexcept>
+{
+    using type = Ret(Args...) const volatile&&;
+};
+
+template<typename Ret, typename... Args>
+struct RemoveSignatureNoexcept<Ret(Args......) const volatile&& noexcept>
+{
+    using type = Ret(Args......) const volatile&&;
+};
+
+template<typename Signature>
+using RemoveSignatureNoexceptT =
+    typename RemoveSignatureNoexcept<Signature>::type;
+
+// remove variadic qualifier from functions
+
+template<typename T>
+struct RemoveFunctionVariadic : public RemoveSignatureVariadic<T>
+{};
+
+template<typename Signature>
+struct RemoveFunctionVariadic<Signature(*)>
+    : public RemoveFunctionVariadic<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionVariadic<Signature(&)>
+    : public RemoveFunctionVariadic<Signature>
+{};
+
+template<typename Signature>
+using RemoveFunctionVariadicT =
+    typename RemoveFunctionVariadic<Signature>::type;
+
+// remove variadic qualifier from member function pointers
+
+template<typename T>
+struct RemoveMemberFunctionPointerVariadic
+{
+    using type = T;
+};
+
+template<typename T, typename Signature>
+struct RemoveMemberFunctionPointerVariadic<Signature(T::*)>
+    : public RemoveSignatureVariadic<Signature>
+{};
+
+template<typename MemFn>
+using RemoveMemberFunctionPointerVariadicT =
+    typename RemoveMemberFunctionPointerVariadic<MemFn>::type;
+
+// remove const qualifier from functions
+
+template<typename Signature>
+struct RemoveFunctionConst : public RemoveSignatureConst<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionConst<Signature(*)>
+    : public RemoveSignatureConst<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionConst<Signature(&)>
+    : public RemoveSignatureConst<Signature>
+{};
+
+template<typename Fn>
+using RemoveFunctionConstT = typename RemoveFunctionConst<Fn>::type;
+
+// remove const qualifier from member function pointers
+
+template<typename T>
+struct RemoveMemberFunctionPointerConst
+{
+    using type = T;
+};
+
+template<typename T, typename Signature>
+struct RemoveMemberFunctionPointerConst<Signature(T::*)>
+    : public RemoveSignatureConst<Signature>
+{};
+
+template<typename MemFn>
+using RemoveMemberFunctionPointerConstT =
+    typename RemoveMemberFunctionPointerConst<MemFn>::type;
+
+// remove volatile qualifier from functions
+
+template<typename Signature>
+struct RemoveFunctionVolatile : public RemoveSignatureVolatile<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionVolatile<Signature(*)>
+    : public RemoveSignatureVolatile<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionVolatile<Signature(&)>
+    : public RemoveSignatureVolatile<Signature>
+{};
+
+template<typename Fn>
+using RemoveFunctionVolatileT = typename RemoveFunctionVolatile<Fn>::type;
+
+// remove volatile qualifier from member functions
+
+template<typename T>
+struct RemoveMemberFunctionPointerVolatile
+{
+    using type = T;
+};
+
+template<typename T, typename Signature>
+struct RemoveMemberFunctionPointerVolatile<Signature(T::*)>
+    : public RemoveSignatureVolatile<Signature>
+{};
+
+template<typename MemFn>
+using RemoveMemberFunctionPointerVolatileT =
+    typename RemoveMemberFunctionPointerVolatile<MemFn>::type;
+
+// remove lvalue qualifier from functions
+
+template<typename Signature>
+struct RemoveFunctionLvalue : public RemoveSignatureLvalue<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionLvalue<Signature(*)>
+    : public RemoveSignatureLvalue<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionLvalue<Signature(&)>
+    : public RemoveSignatureLvalue<Signature>
+{};
+
+template<typename Fn>
+using RemoveFunctionLvalueT = typename RemoveFunctionLvalue<Fn>::type;
+
+// remove lvalue qualifier from member function pointers
+
+template<typename T>
+struct RemoveMemberFunctionPointerLvalue
+{
+    using type = T;
+};
+
+template<typename T, typename Signature>
+struct RemoveMemberFunctionPointerLvalue<Signature(T::*)>
+    : public RemoveMemberFunctionPointerLvalue<Signature>
+{};
+
+template<typename MemFn>
+using RemoveMemberFunctionPointerLvalueT =
+    typename RemoveMemberFunctionPointerLvalue<MemFn>::type;
+
+// remove rvalue qualifier from functions
+
+template<typename Signature>
+struct RemoveFunctionRvalue : public RemoveSignatureRvalue<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionRvalue<Signature(*)>
+    : public RemoveSignatureRvalue<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionRvalue<Signature(&)>
+    : public RemoveSignatureRvalue<Signature>
+{};
+
+template<typename Fn>
+using RemoveFunctionRvalueT = typename RemoveFunctionRvalue<Fn>::type;
+
+// remove rvalue qualifer from member function pointers
+
+template<typename T>
+struct RemoveMemberFunctionPointerRvalue
+{
+    using type = T;
+};
+
+template<typename T, typename Signature>
+struct RemoveMemberFunctionPointerRvalue<Signature(T::*)>
+    : public RemoveSignatureRvalue<Signature>
+{};
+
+template<typename MemFn>
+using RemoveMemberFunctionPointerRvalueT =
+    typename RemoveMemberFunctionPointerRvalue<MemFn>::type;
+
+// remove noexcept qualifier from functions
+
+template<typename Signature>
+struct RemoveFunctionNoexcept : public RemoveSignatureNoexcept<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionNoexcept<Signature(*)>
+    : public RemoveSignatureNoexcept<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionNoexcept<Signature(&)>
+    : public RemoveSignatureNoexcept<Signature>
+{};
+
+template<typename Fn>
+using RemoveFunctionNoexceptT = typename RemoveFunctionNoexcept<Fn>::type;
+
+// remove noexcept qualifier from member function pointers
+
+template<typename T>
+struct RemoveMemberFunctionPointerNoexcept
+{
+    using type = T;
+};
+
+template<typename T, typename Signature>
+struct RemoveMemberFunctionPointerNoexcept<Signature(T::*)>
+    : public RemoveSignatureNoexcept<Signature>
+{};
+
+template<typename MemFn>
+using RemoveMemberFunctionPointerNoexceptT =
+    typename RemoveMemberFunctionPointerNoexcept<MemFn>::type;
+
+// remove all qualifiers from a signature
+
+template<typename Signature>
+struct RemoveSignatureQualifiers
+{
+    using type = RemoveSignatureVariadicT<
+        RemoveSignatureConstT<RemoveSignatureVolatileT<RemoveSignatureLvalueT<
+            RemoveSignatureRvalue<RemoveSignatureNoexceptT<Signature>>>>>>;
+};
+
+template<typename Signature>
+using RemoveSignatureQualifiersT =
+    typename RemoveSignatureQualifiers<Signature>::type;
+
+// remove all qualifiers from a function pointer
+
+template<typename Signature>
+struct RemoveFunctionQualifiers : public RemoveSignatureQualifiers<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionQualifiers<Signature(*)>
+    : public RemoveSignatureQualifiers<Signature>
+{};
+
+template<typename Signature>
+struct RemoveFunctionQualifiers<Signature(&)>
+    : public RemoveSignatureQualifiers<Signature>
+{};
+
+template<typename Signature>
+using RemoveFunctionQualifiersT =
+    typename RemoveFunctionQualifiers<Signature>::type;
+
+// remove member function qualifiers
+
+template<typename T>
+struct RemoveMemberFunctionPointerQualifiers
+{
+    using type = T;
+};
+
+template<typename T, typename Signature>
+struct RemoveMemberFunctionPointerQualifiers<Signature(T::*)>
+    : public RemoveSignatureQualifiers<Signature>
+{};
+
+template<typename T>
+using RemoveMemberFunctionPointerQualifiersT =
+    typename RemoveMemberFunctionPointerQualifiers<T>::type;
+
+namespace detail
+{
+template<typename Signature>
+struct IsSignatureHelper : public std::false_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsSignatureHelper<Ret(Args...)> : public std::true_type
+{};
+} // namespace detail
+
+template<typename Signature>
+struct IsSignature
+    : public detail::IsSignatureHelper<RemoveSignatureVariadicT<
+          RemoveSignatureConstT<RemoveSignatureVolatileT<RemoveSignatureLvalueT<
+              RemoveSignatureRvalueT<RemoveSignatureNoexceptT<Signature>>>>>>>
+{};
+
+template<typename Signature>
+inline constexpr bool IsSignatureV = IsSignature<Signature>::value;
+
 // generic false_type
 template<typename Signature>
-struct IsFunctionSignature : public std::false_type
-{};
-
-// normal functions
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...)> : public std::true_type
-{};
-
-// variadic
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......)> : public std::true_type
-{};
-
-// cv qualifiers
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) volatile> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const volatile> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) volatile> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const volatile>
-    : public std::true_type
-{};
-
-// ref qualifiers
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...)&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......)&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const volatile&>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) &&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) volatile&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const volatile&&>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) &&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) volatile&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const volatile&&>
-    : public std::true_type
-{};
-
-// noexcept qualifiers
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) & noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const& noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) & noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) && noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args...) const volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) && noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsFunctionSignature<Ret(Args......) const volatile&& noexcept>
-    : public std::true_type
+struct IsFunctionSignature : public IsSignature<Signature>
 {};
 
 template<typename Signature>
 inline constexpr bool IsFunctionSignatureV =
     IsFunctionSignature<Signature>::value;
 
-// check if function pointer
+// is function
 
 template<typename Signature>
-struct IsFunctionPointer : public std::false_type
+struct IsFunction : public IsSignature<Signature>
 {};
 
 template<typename Signature>
-struct IsFunctionPointer<Signature(*)>
-    : public sigma::IsFunctionSignature<Signature>
+struct IsFunction<Signature(*)> : public IsSignature<Signature>
 {};
 
 template<typename Signature>
-inline constexpr bool IsFunctionPointerV = IsFunctionPointer<Signature>::value;
-
-// check if function reference
-
-template<typename Signature>
-struct IsFunctionReference : public std::false_type
+struct IsFunction<Signature(&)> : public IsSignature<Signature>
 {};
 
-template<typename Signature>
-struct IsFunctionReference<Signature(&)>
-    : public sigma::IsFunctionSignature<Signature>
-{};
+template<typename Fn>
+inline constexpr bool IsFunctionV = IsFunction<Fn>::value;
 
-template<typename Signature>
-inline constexpr bool IsFunctionReferenceV =
-    IsFunctionReference<Signature>::value;
+// is member function pointer
 
-// member function
-
-template<typename Signature>
+template<typename T>
 struct IsMemberFunctionPointer : public std::false_type
 {};
 
 template<typename T, typename Signature>
-struct IsMemberFunctionPointer<Signature(T::*)>
-    : public sigma::IsFunctionSignature<Signature>
+struct IsMemberFunctionPointer<Signature(T::*)> : public IsSignature<Signature>
 {};
 
-template<typename Signature>
+template<typename MemFn>
 inline constexpr bool IsMemberFunctionPointerV =
-    IsMemberFunctionPointer<Signature>::value;
-
-// check if function
-
-template<typename Signature>
-struct IsFunction : public std::integral_constant<
-                        bool,
-                        sigma::IsFunctionSignatureV<Signature> ||
-                            sigma::IsFunctionPointerV<Signature> ||
-                            sigma::IsFunctionReferenceV<Signature> ||
-                            sigma::IsMemberFunctionPointerV<Signature>>
-{};
-
-template<typename Signature>
-inline constexpr bool IsFunctionV = IsFunction<Signature>::value;
+    IsMemberFunctionPointer<MemFn>::value;
 
 // get function signature
 
 template<typename Signature>
-struct FunctionSignature;
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...)>
-{
-    using type = Ret(Args...);
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......)>
-{
-    using type = Ret(Args......);
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const>
-{
-    using type = Ret(Args...) const;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const>
-{
-    using type = Ret(Args......) const;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) volatile>
-{
-    using type = Ret(Args...) volatile;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) volatile>
-{
-    using type = Ret(Args......) volatile;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const volatile>
-{
-    using type = Ret(Args...) const volatile;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const volatile>
-{
-    using type = Ret(Args......) const volatile;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...)&>
-{
-    using type = Ret(Args...) &;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......)&>
-{
-    using type = Ret(Args......) &;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const&>
-{
-    using type = Ret(Args...) const&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const&>
-{
-    using type = Ret(Args......) const&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) volatile&>
-{
-    using type = Ret(Args...) volatile&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) volatile&>
-{
-    using type = Ret(Args......) volatile&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const volatile&>
-{
-    using type = Ret(Args...) const volatile&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const volatile&>
-{
-    using type = Ret(Args......) const volatile&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) &&>
-{
-    using type = Ret(Args...) &&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) &&>
-{
-    using type = Ret(Args......) &&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const&&>
-{
-    using type = Ret(Args...) const&&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const&&>
-{
-    using type = Ret(Args......) const&&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) volatile&&>
-{
-    using type = Ret(Args...) volatile&&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) volatile&&>
-{
-    using type = Ret(Args......) volatile&&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const volatile&&>
-{
-    using type = Ret(Args...) const volatile&&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const volatile&&>
-{
-    using type = Ret(Args......) const volatile&&;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) noexcept>
-{
-    using type = Ret(Args...) noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) noexcept>
-{
-    using type = Ret(Args......) noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const noexcept>
-{
-    using type = Ret(Args...) const noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const noexcept>
-{
-    using type = Ret(Args......) const noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) volatile noexcept>
-{
-    using type = Ret(Args...) volatile noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) volatile noexcept>
-{
-    using type = Ret(Args......) volatile noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const volatile noexcept>
-{
-    using type = Ret(Args...) const volatile noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const volatile noexcept>
-{
-    using type = Ret(Args......) const volatile noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) & noexcept>
-{
-    using type = Ret(Args...) & noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) & noexcept>
-{
-    using type = Ret(Args......) & noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const& noexcept>
-{
-    using type = Ret(Args...) const& noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const& noexcept>
-{
-    using type = Ret(Args......) const& noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) volatile& noexcept>
-{
-    using type = Ret(Args...) volatile& noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) volatile& noexcept>
-{
-    using type = Ret(Args......) volatile& noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const volatile& noexcept>
-{
-    using type = Ret(Args...) const volatile& noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const volatile& noexcept>
-{
-    using type = Ret(Args......) const volatile& noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) && noexcept>
-{
-    using type = Ret(Args...) && noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) && noexcept>
-{
-    using type = Ret(Args......) && noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const&& noexcept>
-{
-    using type = Ret(Args...) const&& noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const&& noexcept>
-{
-    using type = Ret(Args......) const&& noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) volatile&& noexcept>
-{
-    using type = Ret(Args...) volatile&& noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) volatile&& noexcept>
-{
-    using type = Ret(Args......) volatile&& noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args...) const volatile&& noexcept>
-{
-    using type = Ret(Args...) const volatile&& noexcept;
-};
-
-template<typename Ret, typename... Args>
-struct FunctionSignature<Ret(Args......) const volatile&& noexcept>
-{
-    using type = Ret(Args......) const volatile&& noexcept;
-};
+struct FunctionSignature
+    : public std::conditional_t<sigma::IsSignatureV<Signature>,
+                                detail::Identity<Signature>,
+                                detail::Empty>
+{};
 
 template<typename Signature>
 struct FunctionSignature<Signature(*)>
-    : public sigma::FunctionSignature<Signature>
+    : public std::conditional_t<sigma::IsSignatureV<Signature>,
+                                detail::Identity<Signature>,
+                                detail::Empty>
 {};
 
 template<typename Signature>
 struct FunctionSignature<Signature(&)>
-    : public sigma::FunctionSignature<Signature>
-{};
-
-template<typename T, typename Signature>
-struct FunctionSignature<Signature(T::*)>
-    : public sigma::FunctionSignature<Signature>
-{};
-
-template<typename Signature>
-struct FunctionSignature<std::function<Signature>>
-    : public FunctionSignature<Signature>
+    : public std::conditional_t<sigma::IsSignatureV<Signature>,
+                                detail::Identity<Signature>,
+                                detail::Empty>
 {};
 
 template<typename Signature>
 using FunctionSignatureT = typename sigma::FunctionSignature<Signature>::type;
 
+// member function pointer signature
+
+template<typename T>
+struct MemberFunctionPointerSignature;
+
+template<typename T, typename Signature>
+struct MemberFunctionPointerSignature<Signature(T::*)>
+    : public std::conditional_t<sigma::IsSignatureV<Signature>,
+                                detail::Identity<Signature>,
+                                detail::Empty>
+{};
+
+template<typename MemFn>
+using MemberFunctionPointerSignatureT =
+    typename MemberFunctionPointerSignature<MemFn>::type;
+
 // variadic
 
+namespace detail
+{
+template<typename T>
+struct IsVariadicSignatureHelper : public std::false_type
+{};
+
+template<typename Ret, typename... Args>
+struct IsVariadicSignatureHelper<Ret(Args......)> : public std::true_type
+{};
+} // namespace detail
+
 template<typename Signature>
-struct IsVariadicFunction : public std::false_type
+struct IsVariadicSignature
+    : public std::conditional_t<
+          detail::IsVariadicSignatureHelper<
+              RemoveSignatureConstT<RemoveSignatureVolatileT<
+                  RemoveSignatureLvalueT<RemoveSignatureRvalueT<
+                      RemoveSignatureNoexcept<Signature>>>>>>::value,
+          std::true_type,
+          std::false_type>
 {};
 
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......)> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) volatile> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const volatile>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......)&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const volatile&>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) &&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) volatile&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const volatile&&>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) & noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) && noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVariadicFunction<Ret(Args......) const volatile&& noexcept>
-    : public std::true_type
-{};
+template<typename Signature>
+inline constexpr bool IsVariadicSignatureV =
+    IsVariadicSignature<Signature>::value;
 
 // variadic helpers
 
+template<typename Fn>
+struct IsVariadicFunction : public IsVariadicSignature<Fn>
+{};
+
 template<typename Signature>
 struct IsVariadicFunction<Signature(*)>
-    : public sigma::IsVariadicFunction<Signature>
+    : public sigma::IsVariadicSignature<Signature>
 {};
 
 template<typename Signature>
 struct IsVariadicFunction<Signature(&)>
-    : public sigma::IsVariadicFunction<Signature>
+    : public sigma::IsVariadicSignature<Signature>
+{};
+
+template<typename Fn>
+inline constexpr bool IsVariadicFunctionV = IsVariadicFunction<Fn>::value;
+
+template<typename T>
+struct IsVariadicMemberFunctionPointer : public std::false_type
 {};
 
 template<typename T, typename Signature>
-struct IsVariadicFunction<Signature(T::*)>
-    : public sigma::IsVariadicFunction<Signature>
+struct IsVariadicMemberFunctionPointer<Signature(T::*)>
+    : public sigma::IsVariadicSignature<Signature>
 {};
 
-template<typename Signature>
-inline constexpr bool IsVariadicFunctionV =
-    IsVariadicFunction<Signature>::value;
+template<typename MemFn>
+inline constexpr bool IsVariadicMemberFunctionPointerV =
+    IsVariadicMemberFunctionPointer<MemFn>::value;
 
 // const function
 
-// default
+namespace detail
+{
 template<typename Signature>
-struct IsConstFunction : public std::false_type
+struct IsConstSignatureHelper : public std::false_type
 {};
 
 template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const> : public std::true_type
+struct IsConstSignatureHelper<Ret(Args...) const> : public std::true_type
 {};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const volatile> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const volatile> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const volatile&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const volatile&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const& noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const& noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const&& noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const&& noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args...) const volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsConstFunction<Ret(Args......) const volatile&& noexcept>
-    : public std::true_type
-{};
-
-// helpers
+} // namespace detail
 
 template<typename Signature>
-struct IsConstFunction<Signature(*)> : public sigma::IsConstFunction<Signature>
+struct IsConstSignature
+    : public std::conditional_t<
+          detail::IsConstSignatureHelper<
+              RemoveSignatureVariadicT<RemoveSignatureVolatileT<
+                  RemoveSignatureLvalueT<RemoveSignatureRvalueT<
+                      RemoveSignatureNoexceptT<Signature>>>>>>::value,
+          std::true_type,
+          std::false_type>
 {};
 
 template<typename Signature>
-struct IsConstFunction<Signature(&)> : public sigma::IsConstFunction<Signature>
+inline constexpr bool IsConstSignatureV = IsConstSignature<Signature>::value;
+
+template<typename Fn>
+struct IsConstFunction : public IsConstSignature<Fn>
+{};
+
+template<typename Signature>
+struct IsConstFunction<Signature(*)> : public IsConstSignature<Signature>
+{};
+
+template<typename Signature>
+struct IsConstFunction<Signature(&)> : public IsConstSignature<Signature>
+{};
+
+template<typename Fn>
+inline constexpr bool IsConstFunctionV = IsConstFunction<Fn>::value;
+
+// check for const member function pointer
+
+template<typename T>
+struct IsConstMemberFunctionPointer : public std::false_type
 {};
 
 template<typename T, typename Signature>
-struct IsConstFunction<Signature(T::*)>
-    : public sigma::IsConstFunction<Signature>
+struct IsConstMemberFunctionPointer<Signature(T::*)>
+    : public IsConstSignature<Signature>
 {};
 
-template<typename Signature>
-inline constexpr bool IsConstFunctionV = IsConstFunction<Signature>::value;
+template<typename MemFn>
+inline constexpr bool IsConstMemberFunctionPointerV =
+    IsConstMemberFunctionPointer<MemFn>::value;
 
 // volatile functions
+
+namespace detail
+{
 template<typename Signature>
-struct IsVolatileFunction : public std::false_type
+struct IsVolatileSignatureHelper : public std::false_type
 {};
 
 template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) volatile> : public std::true_type
+struct IsVolatileSignatureHelper<Ret(Args...) volatile> : public std::true_type
 {};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) volatile> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) const volatile> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) const volatile>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) const volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) const volatile&>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) volatile&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) volatile&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) const volatile&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) const volatile&&>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) const volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) const volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) const volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) const volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args...) const volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsVolatileFunction<Ret(Args......) const volatile&& noexcept>
-    : public std::true_type
-{};
-
-// helpers
+} // namespace detail
 
 template<typename Signature>
-struct IsVolatileFunction<Signature(*)>
-    : public sigma::IsVolatileFunction<Signature>
+struct IsVolatileSignature
+    : public std::conditional_t<
+          detail::IsVolatileSignatureHelper<
+              RemoveSignatureVariadicT<RemoveSignatureConstT<
+                  RemoveSignatureLvalueT<RemoveSignatureRvalueT<
+                      RemoveSignatureNoexceptT<Signature>>>>>>::value,
+          std::true_type,
+          std::false_type>
 {};
 
 template<typename Signature>
-struct IsVolatileFunction<Signature(&)>
-    : public sigma::IsVolatileFunction<Signature>
+inline constexpr bool IsVolatileSignatureV =
+    IsVolatileSignature<Signature>::value;
+
+template<typename Fn>
+struct IsVolatileFunction : public IsVolatileSignature<Fn>
+{};
+
+template<typename Signature>
+struct IsVolatileFunction<Signature(*)> : public IsVolatileSignature<Signature>
+{};
+
+template<typename Signature>
+struct IsVolatileFunction<Signature(&)> : public IsVolatileSignature<Signature>
+{};
+
+template<typename Fn>
+inline constexpr bool IsVolatileFunctionV = IsVolatileFunction<Fn>::value;
+
+// check for volatile member function pointer
+
+template<typename T>
+struct IsVolatileMemberFunctionPointer : public std::false_type
 {};
 
 template<typename T, typename Signature>
-struct IsVolatileFunction<Signature(T::*)>
-    : public sigma::IsVolatileFunction<Signature>
+struct IsVolatileMemberFunctionPointer<Signature(T::*)>
+    : public IsVolatileSignature<Signature>
 {};
 
-template<typename Signature>
-inline constexpr bool IsVolatileFunctionV =
-    IsVolatileFunction<Signature>::value;
+template<typename MemFn>
+inline constexpr bool IsVolatileMemberFunctionPointerV =
+    IsVolatileMemberFunctionPointer<MemFn>::value;
 
 // lvalue qualified
 
+namespace detail
+{
 template<typename Signature>
-struct IsLvalueFunction : public std::false_type
+struct IsLvalueSignatureHelper : public std::false_type
 {};
 
 template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args...)&> : public std::true_type
+struct IsLvalueSignatureHelper<Ret(Args...)&> : public std::true_type
 {};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args......)&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args...) const&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args......) const&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args...) volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args......) volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args...) const volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args......) const volatile&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args...) & noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args......) & noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args...) const& noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args......) const& noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args...) volatile& noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args......) volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args...) const volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsLvalueFunction<Ret(Args......) const volatile& noexcept>
-    : public std::true_type
-{};
-
-// helpers
+} // namespace detail
 
 template<typename Signature>
-struct IsLvalueFunction<Signature(*)>
-    : public sigma::IsLvalueFunction<Signature>
+struct IsLvalueSignature
+    : public std::conditional_t<
+          detail::IsLvalueSignatureHelper<
+              RemoveSignatureVariadicT<RemoveSignatureConstT<
+                  RemoveSignatureVolatileT<RemoveSignatureRvalueT<
+                      RemoveSignatureNoexceptT<Signature>>>>>>::value,
+          std::true_type,
+          std::false_type>
 {};
 
 template<typename Signature>
-struct IsLvalueFunction<Signature(&)>
-    : public sigma::IsLvalueFunction<Signature>
+inline constexpr bool IsLvalueSignatureV = IsLvalueSignature<Signature>::value;
+
+template<typename Fn>
+struct IsLvalueFunction : public IsLvalueSignature<Fn>
+{};
+
+template<typename Signature>
+struct IsLvalueFunction<Signature(*)> : public IsLvalueSignature<Signature>
+{};
+
+template<typename Signature>
+struct IsLvalueFunction<Signature(&)> : public IsLvalueSignature<Signature>
+{};
+
+template<typename Fn>
+inline constexpr bool IsLvalueFunctionV = IsLvalueFunction<Fn>::value;
+
+// check for lvalue member function pointer
+
+template<typename T>
+struct IsLvalueMemberFunctionPointer : public std::false_type
 {};
 
 template<typename T, typename Signature>
-struct IsLvalueFunction<Signature(T::*)>
-    : public sigma::IsLvalueFunction<Signature>
+struct IsLvalueMemberFunctionPointer<Signature(T::*)>
+    : public IsLvalueSignature<Signature>
 {};
 
-template<typename Signature>
-inline constexpr bool IsLvalueFunctionV = IsLvalueFunction<Signature>::value;
+template<typename MemFn>
+inline constexpr bool IsLvalueMemberFunctionPointerV =
+    IsLvalueMemberFunctionPointer<MemFn>::value;
 
 // rvalue qualified functions
 
+namespace detail
+{
 template<typename Signature>
-struct IsRvalueFunction : public std::false_type
+struct IsRvalueSignatureHelper : public std::false_type
 {};
 
 template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args...) &&> : public std::true_type
+struct IsRvalueSignatureHelper<Ret(Args...) &&> : public std::true_type
 {};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args......) &&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args...) const&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args......) const&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args...) volatile&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args......) volatile&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args...) const volatile&&> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args......) const volatile&&>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args...) && noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args......) && noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args...) const&& noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args......) const&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args...) volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args......) volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args...) const volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsRvalueFunction<Ret(Args......) const volatile&& noexcept>
-    : public std::true_type
-{};
-
-// helpers
+} // namespace detail
 
 template<typename Signature>
-struct IsRvalueFunction<Signature(*)>
-    : public sigma::IsRvalueFunction<Signature>
+struct IsRvalueSignature
+    : public std::conditional_t<
+          detail::IsRvalueSignatureHelper<
+              RemoveSignatureVariadicT<RemoveSignatureConstT<
+                  RemoveSignatureVolatileT<RemoveSignatureLvalueT<
+                      RemoveSignatureNoexceptT<Signature>>>>>>::value,
+          std::true_type,
+          std::false_type>
 {};
 
 template<typename Signature>
-struct IsRvalueFunction<Signature(&)>
-    : public sigma::IsRvalueFunction<Signature>
+inline constexpr bool IsRvalueSignatureV = IsRvalueSignature<Signature>::value;
+
+template<typename Fn>
+struct IsRvalueFunction : public IsRvalueSignature<Fn>
+{};
+
+template<typename Signature>
+struct IsRvalueFunction<Signature(*)> : public IsRvalueSignature<Signature>
+{};
+
+template<typename Signature>
+struct IsRvalueFunction<Signature(&)> : public IsRvalueSignature<Signature>
+{};
+
+template<typename Fn>
+inline constexpr bool IsRvalueFunctionV = IsRvalueFunction<Fn>::value;
+
+// check for rvalue member function pointer
+
+template<typename T>
+struct IsRvalueMemberFunctionPointer : public std::false_type
 {};
 
 template<typename T, typename Signature>
-struct IsRvalueFunction<Signature(T::*)>
-    : public sigma::IsRvalueFunction<Signature>
+struct IsRvalueMemberFunctionPointer<Signature(T::*)>
+    : public IsRvalueSignature<Signature>
 {};
 
-template<typename Signature>
-inline constexpr bool IsRvalueFunctionV = IsRvalueFunction<Signature>::value;
+template<typename MemFn>
+inline constexpr bool IsRvalueMemberFunctionPointerV =
+    IsRvalueMemberFunctionPointer<MemFn>::value;
 
 // nothrow functions
 
+namespace detail
+{
 template<typename Signature>
-struct IsNothrowFunction : public std::false_type
+struct IsNoexceptSignatureHelper : public std::false_type
 {};
 
 template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) noexcept> : public std::true_type
+struct IsNoexceptSignatureHelper<Ret(Args...) const> : public std::true_type
 {};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) const noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) const noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) volatile noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) const volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) const volatile noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) & noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) & noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) const& noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) const& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) const volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) const volatile& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) && noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) && noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) const&& noexcept> : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) const&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args...) const volatile&& noexcept>
-    : public std::true_type
-{};
-
-template<typename Ret, typename... Args>
-struct IsNothrowFunction<Ret(Args......) const volatile&& noexcept>
-    : public std::true_type
-{};
-
-// helpers
+} // namespace detail
 
 template<typename Signature>
-struct IsNothrowFunction<Signature(*)>
-    : public sigma::IsNothrowFunction<Signature>
+struct IsNoexceptSignature
+    : public std::conditional_t<
+          detail::IsNoexceptSignatureHelper<
+              RemoveSignatureVariadicT<RemoveSignatureConstT<
+                  RemoveSignatureVolatileT<RemoveSignatureLvalueT<
+                      RemoveSignatureRvalueT<Signature>>>>>>::value,
+          std::true_type,
+          std::false_type>
 {};
 
 template<typename Signature>
-struct IsNothrowFunction<Signature(&)>
-    : public sigma::IsNothrowFunction<Signature>
+inline constexpr bool IsNoexceptSignatureV =
+    IsNoexceptSignature<Signature>::value;
+
+template<typename Fn>
+struct IsNoexceptFunction : public IsNoexceptSignature<Fn>
+{};
+
+template<typename Signature>
+struct IsNoexceptFunction<Signature(*)> : public IsNoexceptSignature<Signature>
+{};
+
+template<typename Signature>
+struct IsNoexceptFunction<Signature(&)> : public IsNoexceptSignature<Signature>
+{};
+
+template<typename Fn>
+inline constexpr bool IsNoexceptFunctionV = IsNoexceptFunction<Fn>::value;
+
+// check for nothrow member function pointer
+
+template<typename T>
+struct IsNoexceptMemberFunctionPointer : public std::false_type
 {};
 
 template<typename T, typename Signature>
-struct IsNothrowFunction<Signature(T::*)>
-    : public sigma::IsNothrowFunction<Signature>
+struct IsNoexceptMemberFunctionPointer<Signature(T::*)>
+    : public IsNoexceptSignature<Signature>
 {};
 
-template<typename Signature>
-inline constexpr bool IsNothrowFunctionV = IsNothrowFunction<Signature>::value;
+template<typename MemFn>
+inline constexpr bool IsNoexceptMemberFunctionPointerV =
+    IsNoexceptMemberFunctionPointer<MemFn>::value;
 
 // member function pointer class
 
@@ -1401,13 +1649,65 @@ struct MemberFunctionPointerClass;
 
 template<typename T, typename Signature>
 struct MemberFunctionPointerClass<Signature(T::*)>
-{
-    using type = T;
-};
+    : public std::conditional_t<IsSignatureV<Signature>,
+                                detail::Identity<T>,
+                                detail::Empty>
+{};
 
 template<typename Signature>
 using MemberFunctionPointerClassT =
     typename MemberFunctionPointerClass<Signature>::type;
+
+// get return type
+
+namespace detail
+{
+template<typename Sig>
+struct SignatureReturnHelper;
+
+template<typename Ret, typename... Args>
+struct SignatureReturnHelper<Ret(Args...)>
+{
+    using type = Ret;
+};
+} // namespace detail
+
+template<typename Signature>
+struct SignatureReturn : public detail::SignatureReturnHelper<
+                             sigma::RemoveSignatureQualifiersT<Signature>>
+{};
+
+template<typename Signature>
+using SignatureReturnT = typename SignatureReturn<Signature>::type;
+
+template<typename Fn>
+struct FunctionReturn : public SignatureReturn<Fn>
+{};
+
+template<typename Signature>
+struct FunctionReturn<Signature(*)> : public SignatureReturn<Signature>
+{};
+
+template<typename Signature>
+struct FunctionReturn<Signature(&)> : public SignatureReturn<Signature>
+{};
+
+template<typename Fn>
+using FunctionReturnT = typename FunctionReturn<Fn>::type;
+
+// get member function return type
+
+template<typename T>
+struct MemberFunctionPointerReturn;
+
+template<typename T, typename Signature>
+struct MemberFunctionPointerReturn<Signature(T::*)>
+    : public SignatureReturn<Signature>
+{};
+
+template<typename MemFn>
+using MemberFunctionPointerReturnT =
+    typename MemberFunctionPointerReturn<MemFn>::type;
 
 // get nth element
 
