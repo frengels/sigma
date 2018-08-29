@@ -1709,6 +1709,135 @@ template<typename MemFn>
 using MemberFunctionPointerReturnT =
     typename MemberFunctionPointerReturn<MemFn>::type;
 
+// get parameters as tuple
+
+namespace detail
+{
+template<typename Signature>
+struct SignatureParametersAsTupleHelper;
+
+template<typename Ret, typename... Args>
+struct SignatureParametersAsTupleHelper<Ret(Args...)>
+{
+    using type = std::tuple<Args...>;
+};
+} // namespace detail
+
+template<typename Signature>
+struct SignatureParametersAsTuple
+    : public detail::SignatureParametersAsTupleHelper<
+          RemoveSignatureQualifiersT<Signature>>
+{};
+
+template<typename Signature>
+using SignatureParametersAsTupleT =
+    typename SignatureParametersAsTuple<Signature>::type;
+
+// merge function signature from 2 tuples
+
+namespace detail
+{
+// functionality to merge any tuple and other elements into a tuple
+template<typename... Ts>
+struct MergeTuples
+{
+    using type = std::tuple<Ts...>;
+};
+
+template<>
+struct MergeTuples<>
+{
+    using type = std::tuple<>;
+};
+
+template<typename T>
+struct MergeTuples<T>
+{
+    using type = std::tuple<T>;
+};
+
+template<typename... Ts>
+struct MergeTuples<std::tuple<Ts...>>
+{
+    using type = std::tuple<Ts...>;
+};
+
+template<typename... T1s, typename... T2s>
+struct MergeTuples<std::tuple<T1s...>, std::tuple<T2s...>>
+{
+    using type = std::tuple<T1s..., T2s...>;
+};
+
+template<typename T1, typename T2>
+struct MergeTuples<T1, T2>
+{
+    using type = std::tuple<T1, T2>;
+};
+
+template<typename T, typename... Ts>
+struct MergeTuples<T, std::tuple<Ts...>>
+{
+    using type = std::tuple<T, Ts...>;
+};
+
+template<typename... Ts, typename T>
+struct MergeTuples<std::tuple<Ts...>, T>
+{
+    using type = std::tuple<Ts..., T>;
+};
+
+template<typename... Ts, typename T, typename... Rest>
+struct MergeTuples<std::tuple<Ts...>, T, Rest...>
+{
+    using temp = typename MergeTuples<Rest...>::type;
+    using type = typename MergeTuples<std::tuple<Ts..., T>, temp>::type;
+};
+
+template<typename T, typename... Ts, typename... Rest>
+struct MergeTuples<T, std::tuple<Ts...>, Rest...>
+{
+    using temp = typename MergeTuples<Rest...>::type;
+    using type = typename MergeTuples<std::tuple<T, Ts...>, temp>::type;
+};
+
+template<typename... T1s, typename... T2s, typename... Rest>
+struct MergeTuples<std::tuple<T1s...>, std::tuple<T2s...>, Rest...>
+{
+    using temp = typename MergeTuples<Rest...>::type;
+    using type = typename MergeTuples<std::tuple<T1s..., T2s...>, temp>::type;
+};
+
+template<typename T1, typename T2, typename... Rest>
+struct MergeTuples<T1, T2, Rest...>
+{
+    using temp = typename MergeTuples<Rest...>::type;
+    using type = typename MergeTuples<std::tuple<T1, T2>, temp>::type;
+};
+
+// the final merge from return and a single tuple
+template<typename Signature>
+struct MakeSignatureHelper;
+
+template<typename Ret, typename... Args>
+struct MakeSignatureHelper<Ret(std::tuple<Args...>)>
+{
+    using type = Ret(Args...);
+};
+} // namespace detail
+
+template<typename Signature>
+struct MakeSignature;
+
+template<typename Ret, typename... Args>
+struct MakeSignature<Ret(Args...)>
+{
+    using type = typename detail::MakeSignatureHelper<Ret(
+        typename detail::MergeTuples<Args...>::type)>::type;
+};
+
+template<typename Signature>
+using MakeSignatureT = typename MakeSignature<Signature>::type;
+
 // get nth element
 
 template<std::size_t N, typename... Ts>
