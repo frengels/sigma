@@ -20,6 +20,14 @@ struct SignalTraits<Nothrow, Ret(Args...)>
     static constexpr bool is_nothrow = Nothrow;
 
     using return_type = Ret;
+
+    using _base_signature_type = return_type(Args...);
+
+    // read as sigma::FunctionRef<return_type(Args...) noexcept(is_nothrow)>
+    using function_type = sigma::FunctionRef<
+        std::conditional_t<is_nothrow,
+                           sigma::AddSignatureNothrowT<_base_signature_type>,
+                           _base_signature_type>>;
 };
 
 template<typename Ret, typename... Args>
@@ -29,7 +37,7 @@ template<typename Ret, typename... Args>
 class Signal<Ret(Args...)> {
 public:
     using return_type    = Ret;
-    using function_type  = std::function<Ret(Args...)>;
+    using function_type  = sigma::FunctionRef<Ret(Args...)>;
     using container_type = std::vector<function_type>;
     using mutex_type     = sigma::DummyMutex;
 
@@ -82,12 +90,12 @@ public:
         return accumulator;
     }
 
-    template<
-        typename T,
-        typename = std::enable_if_t<
-            std::is_constructible_v<typename container_type::value_type, T&&>>>
+    template<typename T>
     void connect(T&& callable)
     {
+        static_assert(
+            std::is_constructible_v<typename container_type::value_type, T&&>,
+            "Cannot construct container_type::value_type from T");
         m_slots.emplace_back(std::forward<T>(callable));
     }
 };
