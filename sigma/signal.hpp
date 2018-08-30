@@ -1,3 +1,6 @@
+#ifndef SIGMA_SIGNAL_HPP_INCLUDED
+#define SIGMA_SIGNAL_HPP_INCLUDED
+
 #pragma once
 
 #include <functional>
@@ -30,14 +33,24 @@ struct SignalTraits<Nothrow, Ret(Args...)>
                            _base_signature_type>>;
 };
 
-template<typename Ret, typename... Args>
-class Signal;
+template<typename Signature>
+class Signal final {
+    static_assert(sigma::IsSignatureV<Signature>,
+                  "Provided Signature is not a valid function signature");
 
-template<typename Ret, typename... Args>
-class Signal<Ret(Args...)> {
+    static_assert(!sigma::IsConstSignatureV<Signature>,
+                  "Signature cannot have const qualifier");
+    static_assert(!sigma::IsVolatileSignatureV<Signature>,
+                  "Signature cannot have volatile qualifier");
+    static_assert(!sigma::IsLvalueSignatureV<Signature>,
+                  "Signature cannot have lvalue qualifier");
+    static_assert(!sigma::IsRvalueSignatureV<Signature>,
+                  "Signature cannot have rvalue qualifier");
+
 public:
-    using return_type    = Ret;
-    using function_type  = sigma::FunctionRef<Ret(Args...)>;
+    using return_type    = sigma::SignatureReturnT<Signature>;
+    using signature_type = Signature;
+    using function_type  = sigma::FunctionRef<signature_type>;
     using container_type = std::vector<function_type>;
     using mutex_type     = sigma::DummyMutex;
 
@@ -51,8 +64,12 @@ public:
     /**
      * call each slot and apply -ret_func- to the returned value
      */
-    template<typename ReturnF>
-    void operator()(ReturnF ret_func, Args... args) noexcept
+    // TODO SFINAE for invocable on ReturnF
+    template<
+        typename ReturnF,
+        typename... Args,
+        typename = std::enable_if_t<std::is_invocable_v<ReturnF, return_type>>>
+    void operator()(ReturnF ret_func, Args&&... args) noexcept
     {
         std::lock_guard lock{m_mutex};
 
@@ -71,12 +88,14 @@ public:
         }
     }
 
-    void operator()(Args... args) noexcept
+    template<typename... Args>
+    void operator()(Args&&... args) noexcept
     {
         (*this)([](auto) {}, std::forward<Args>(args)...);
     }
 
-    std::vector<return_type> emit_accumulate(Args... args)
+    template<typename... Args>
+    std::vector<return_type> emit_accumulate(Args&&... args)
     {
         std::vector<return_type> accumulator;
         accumulator.reserve(std::size(m_slots));
@@ -96,7 +115,10 @@ public:
         static_assert(
             std::is_constructible_v<typename container_type::value_type, T&&>,
             "Cannot construct container_type::value_type from T");
+        std::lock_guard lock{m_mutex};
         m_slots.emplace_back(std::forward<T>(callable));
     }
 };
 } // namespace sigma
+
+#endif

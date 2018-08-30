@@ -1,3 +1,6 @@
+#ifndef SIGMA_FUNCTION_REF_HPP_INCLUDED
+#define SIGMA_FUNCTION_REF_HPP_INCLUDED
+
 #pragma once
 
 #include <cstdio>
@@ -198,3 +201,5 @@ public:
     }
 };
 } // namespace sigma
+
+#endif

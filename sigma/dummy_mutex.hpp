@@ -1,3 +1,6 @@
+#ifndef SIGMA_DUMMY_MUTEX_HPP_INCLUDED
+#define SIGMA_DUMMY_MUTEX_HPP_INCLUDED
+
 #pragma once
 
 namespace sigma
@@ -16,3 +19,5 @@ struct DummyMutex
     {}
 };
 } // namespace sigma
+
+#endif

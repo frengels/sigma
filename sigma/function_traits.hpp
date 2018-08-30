@@ -1,3 +1,6 @@
+#ifndef SIGMA_FUNCTION_TRAITS_HPP_INCLUDED
+#define SIGMA_FUNCTION_TRAITS_HPP_INCLUDED
+
 #pragma once
 
 #include <functional>
@@ -2750,3 +2753,5 @@ constexpr auto overload(Signature(T::*mem_fn)) noexcept
 }
 
 } // namespace sigma
+
+#endif

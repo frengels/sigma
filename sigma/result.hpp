@@ -1,3 +1,6 @@
+#ifndef SIGMA_RESULT_HPP_INCLUDED
+#define SIGMA_RESULT_HPP_INCLUDED
+
 #pragma once
 
 #include <cassert>
@@ -250,3 +253,5 @@ private:
     }
 };
 } // namespace sigma
+
+#endif
