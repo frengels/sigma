@@ -163,6 +163,10 @@ public:
     template<typename... Args>
     constexpr return_type operator()(Args&&... args) const noexcept(is_nothrow)
     {
+        static_assert(std::is_invocable_v<decltype(m_callback),
+                                          decltype(m_instance),
+                                          Args&&...>,
+                      "Cannot call FunctionRef with the provided arguments");
         return std::invoke(m_callback, m_instance, std::forward<Args>(args)...);
     }
 
