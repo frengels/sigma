@@ -14,7 +14,7 @@ namespace detail
 {
 
 template<typename T, bool Nothrow>
-class ResultBase {
+class result_base {
 protected:
     bool m_exceptional{false};
 
@@ -24,16 +24,16 @@ protected:
         std::exception_ptr m_error;
     };
 
-    ResultBase(T&& ok) : m_ok{std::forward<T>(ok)}
+    result_base(T&& ok) : m_ok{std::forward<T>(ok)}
     {}
     template<typename... Args>
-    ResultBase(Args&&... args) : m_ok{std::forward<Args>(args)...}
+    result_base(Args&&... args) : m_ok{std::forward<Args>(args)...}
     {}
-    ResultBase(const std::exception_ptr& except)
+    result_base(const std::exception_ptr& except)
         : m_exceptional{true}, m_error{except}
     {}
 
-    ~ResultBase()
+    ~result_base()
     {
         if (m_exceptional)
         {
@@ -47,29 +47,29 @@ protected:
 };
 
 template<typename T>
-class ResultBase<T, true> {
+class result_base<T, true> {
 protected:
     T m_ok;
 
-    ResultBase(T&& ok) : m_ok{std::move(ok)}
+    result_base(T&& ok) : m_ok{std::move(ok)}
     {}
     template<typename... Args>
-    ResultBase(Args&&... args) : m_ok{std::forward<Args>(args)...}
+    result_base(Args&&... args) : m_ok{std::forward<Args>(args)...}
     {}
-    ResultBase(bool dummy)
+    result_base(bool dummy)
     {}
 
-    ~ResultBase() = default;
+    ~result_base() = default;
 };
 } // namespace detail
 
 template<typename T, bool Nothrow = false>
-class Result final : public detail::ResultBase<T, Nothrow> {
+class result final : public detail::result_base<T, Nothrow> {
 public:
     static constexpr bool is_nothrow = Nothrow;
     using value_type                 = T;
 
-    using base_type = detail::ResultBase<T, is_nothrow>;
+    using base_type = detail::result_base<T, is_nothrow>;
 
 public:
     /**
@@ -83,7 +83,7 @@ public:
                 !std::is_same_v<std::decay_t<U>, std::in_place_t> &&
                 !std::is_same_v<std::decay_t<U>, std::exception_ptr>,
             int> = 0>
-    constexpr Result(U&& val) : base_type{std::forward<U>(val)}
+    constexpr result(U&& val) : base_type{std::forward<U>(val)}
     {}
 
     template<
@@ -93,19 +93,19 @@ public:
                 !std::is_same_v<std::decay_t<U>, std::in_place_t> &&
                 !std::is_same_v<std::decay_t<U>, std::exception_ptr>,
             int> = 0>
-    constexpr explicit Result(U&& val) : base_type{std::forward<U>(val)}
+    constexpr explicit result(U&& val) : base_type{std::forward<U>(val)}
     {}
 
     template<typename... Args,
              std::enable_if_t<std::is_constructible_v<T, Args...>, int> = 0>
-    constexpr Result(std::in_place_t, Args&&... args)
+    constexpr result(std::in_place_t, Args&&... args)
         : base_type{std::forward<Args>(args)...}
     {}
 
     /**
      * constructs a result from an exception when the result is invalid
      */
-    constexpr Result(const std::exception_ptr& e) : base_type{e}
+    constexpr result(const std::exception_ptr& e) : base_type{e}
     {
         static_assert(
             !is_nothrow,
@@ -246,7 +246,7 @@ public:
 private:
     [[noreturn]] void rethrow() noexcept(false)
     {
-        static_assert(!is_nothrow, "Cannot rethrow a nothrow Result");
+        static_assert(!is_nothrow, "Cannot rethrow a nothrow result");
         assert(this->m_exceptional &&
                "Tried rethrowing when there was no exception_ptr present");
         std::rethrow_exception(this->m_error);

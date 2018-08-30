@@ -36,18 +36,18 @@ struct CopyMove
 };
 
 template<bool B = false>
-sigma::Result<CopyMove, B> make_copy_move()
+sigma::result<CopyMove, B> make_copy_move()
 {
-    return sigma::Result<CopyMove, B>(CopyMove());
+    return sigma::result<CopyMove, B>(CopyMove());
 }
 
 template<bool B = false>
-sigma::Result<CopyMove, B> make_copy_move_in_place()
+sigma::result<CopyMove, B> make_copy_move_in_place()
 {
-    return sigma::Result<CopyMove, B>(std::in_place_t{});
+    return sigma::result<CopyMove, B>(std::in_place_t{});
 }
 
-sigma::Result<int> nothing_under_zero(int i)
+sigma::result<int> nothing_under_zero(int i)
 {
     if (i < 0)
     {
@@ -77,13 +77,13 @@ std::exception_ptr throw_this(T&& t)
     }
 }
 
-TEST_CASE("Result")
+TEST_CASE("result")
 {
     std::logic_error except{"this could've been avoided"};
 
-    sigma::Result<int>       valid{5};
-    sigma::Result<int, true> valid_nothrow{5};
-    sigma::Result<int>       invalid{std::invoke([]() -> std::exception_ptr {
+    sigma::result<int>       valid{5};
+    sigma::result<int, true> valid_nothrow{5};
+    sigma::result<int>       invalid{std::invoke([]() -> std::exception_ptr {
         try
         {
             throw std::logic_error{"this could've been avoided"};
@@ -135,8 +135,8 @@ TEST_CASE("Result")
 
     SECTION("in place construction")
     {
-        auto res         = sigma::Result<CopyMove>(std::in_place_t{});
-        auto res_nothrow = sigma::Result<CopyMove, true>(std::in_place_t{});
+        auto res         = sigma::result<CopyMove>(std::in_place_t{});
+        auto res_nothrow = sigma::result<CopyMove, true>(std::in_place_t{});
 
         CHECK(res->copy == 0);
         CHECK(res->move == 0);
@@ -171,7 +171,7 @@ TEST_CASE("Result")
     SECTION("rethrow")
     {
         // result with thrown 5
-        sigma::Result<int> thrown5{throw_this(5)};
+        sigma::result<int> thrown5{throw_this(5)};
 
         CHECK_FALSE(thrown5);
 
@@ -181,14 +181,14 @@ TEST_CASE("Result")
 
     SECTION("noexcept specifics")
     {
-        CHECK(sizeof(sigma::Result<std::string, true>) <
-              sizeof(sigma::Result<std::string, false>));
-        sigma::Result<std::string, true> valid{"hello, world"};
+        CHECK(sizeof(sigma::result<std::string, true>) <
+              sizeof(sigma::result<std::string, false>));
+        sigma::result<std::string, true> valid{"hello, world"};
 
         // cannot construct nothrow result from exception_ptr
         // this check fails when it shouldn't, actually trying to construct the
         // object doesn't work
-        // CHECK_FALSE(std::is_constructible_v<sigma::Result<std::string, true>,
+        // CHECK_FALSE(std::is_constructible_v<sigma::result<std::string, true>,
         //                                    std::exception_ptr>);
     }
 }

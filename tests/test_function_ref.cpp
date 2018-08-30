@@ -56,9 +56,9 @@ int baz()
     return 0;
 }
 
-TEST_CASE("FunctionRef")
+TEST_CASE("function_ref")
 {
-    sigma::FunctionRef<bool(const std::string&)> uninitialized;
+    sigma::function_ref<bool(const std::string&)> uninitialized;
 
     SECTION("default throws")
     {
@@ -67,7 +67,7 @@ TEST_CASE("FunctionRef")
 
     SECTION("function pointer")
     {
-        sigma::FunctionRef<int(int)> fptr{test_func};
+        sigma::function_ref<int(int)> fptr{test_func};
 
         int  i   = 73;
         auto res = fptr(i);
@@ -76,15 +76,15 @@ TEST_CASE("FunctionRef")
 
     SECTION("functor")
     {
-        foo                          f{};
-        sigma::FunctionRef<int(int)> functor{f};
+        foo                           f{};
+        sigma::function_ref<int(int)> functor{f};
 
         // using the non const operator()
         CHECK(functor(5) == 10);
         CHECK(f.i == 10); // make sure it wasn't moved or anything
 
-        const foo                    g{};
-        sigma::FunctionRef<int(int)> const_functor{g};
+        const foo                     g{};
+        sigma::function_ref<int(int)> const_functor{g};
 
         // using the operator() const
         CHECK(const_functor(5) == 5);
@@ -95,44 +95,46 @@ TEST_CASE("FunctionRef")
     {
         foo  g{};
         auto mem_fn_from_ref =
-            sigma::FunctionRef<long(long)>::member_fn<&foo::bar>(g);
+            sigma::function_ref<long(long)>::member_fn<&foo::bar>(g);
 
         CHECK(mem_fn_from_ref(0) == 5);
 
         // call from const member function
         const foo b{};
         auto      const_mem_fn =
-            sigma::FunctionRef<int()>::member_fn<sigma::overload<int() const>(
+            sigma::function_ref<int()>::member_fn<sigma::overload<int() const>(
                 &foo::const_fun)>(b);
 
         CHECK(const_mem_fn() == 10); // call the const version which returns 10
 
         // will call the non const version and return 5;
         auto nonconst_fun =
-            sigma::FunctionRef<int()>::member_fn<sigma::overload<int()>(
+            sigma::function_ref<int()>::member_fn<sigma::overload<int()>(
                 &foo::const_fun)>(g);
 
         CHECK(nonconst_fun() ==
               5); // call the non const version which returns 5
 
-        CHECK(sigma::IsConstMemberFunctionPointerV<decltype(
+        CHECK(sigma::is_member_function_pointer_const_v<decltype(
                   sigma::overload<int() const>(&foo::const_fun))>);
-        CHECK_FALSE(sigma::IsConstMemberFunctionPointerV<decltype(&foo::bar)>);
+        CHECK_FALSE(
+            sigma::is_member_function_pointer_const_v<decltype(&foo::bar)>);
     }
 
     SECTION("operator bool")
     {
-        sigma::FunctionRef<int(int)> valid{test_func};
+        sigma::function_ref<int(int)> valid{test_func};
         CHECK(valid);
         CHECK_FALSE(uninitialized);
     }
 
     SECTION("noexcept")
     {
-        sigma::FunctionRef<int(int)>          throwing_fn{test_func};
-        sigma::FunctionRef<int(int) noexcept> nothrow_fn{test_func_nothrow};
+        sigma::function_ref<int(int)>          throwing_fn{test_func};
+        sigma::function_ref<int(int) noexcept> nothrow_fn{test_func_nothrow};
 
-        CHECK(sigma::IsNothrowSignatureV<decltype(nothrow_fn)::signature_type>);
+        CHECK(sigma::is_signature_nothrow_v<decltype(
+                  nothrow_fn)::signature_type>);
         CHECK(decltype(nothrow_fn)::is_nothrow);
 
         CHECK_FALSE(std::is_nothrow_invocable_v<decltype(throwing_fn), int>);
@@ -144,7 +146,7 @@ TEST_CASE("FunctionRef")
         // static_assert(sigma::is_compatible_function<void(int),
         // int(int)>::value,
         //              "incompatible functions");
-        // sigma::FunctionRef<void(int)> void_ret{[](int i) -> int { return i;
+        // sigma::function_ref<void(int)> void_ret{[](int i) -> int { return i;
         // }};
     };
 }

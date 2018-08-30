@@ -44,16 +44,22 @@ struct Functor
 
 TEST_CASE("Connections")
 {
-    sigma::Signal<void(int)> test;
+    sigma::signal<void(int)> test;
 
     SECTION("empty signal")
     {
         test(5);
     }
 
+    SECTION("function pointer signal")
+    {
+        // simply testing whether construction works
+        test.connect([](auto i) {});
+    }
+
     SECTION("connect stateful lambda")
     {
-        // cannot connect stateful lambdas using FunctionRef
+        // cannot connect stateful lambdas using function_ref
         // TODO make interface which allows std::function to be used
         /*
         int i{5};
@@ -66,7 +72,7 @@ TEST_CASE("Connections")
 
     SECTION("functor move")
     {
-        // functor cannot be moved into sigma::FunctionRef as it's simply a
+        // functor cannot be moved into sigma::function_ref as it's simply a
         // reference
         /*
         int copy = 5;
@@ -82,6 +88,7 @@ TEST_CASE("Connections")
 
     SECTION("functor copy")
     {
+
         int copy = 5;
         int move = 5;
 
@@ -94,7 +101,7 @@ TEST_CASE("Connections")
         // CHECK(copy == 6);
         // CHECK(move == 6);
 
-        // with sigma::FunctionRef only a reference is taken
+        // with sigma::function_ref only a reference is taken
         CHECK(copy == 5);
         CHECK(move == 5);
     }

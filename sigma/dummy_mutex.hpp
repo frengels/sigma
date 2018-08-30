@@ -5,7 +5,7 @@
 
 namespace sigma
 {
-struct DummyMutex
+struct dummy_mutex
 {
     inline constexpr void lock() noexcept
     {}

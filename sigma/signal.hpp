@@ -15,10 +15,10 @@ namespace sigma
 {
 
 template<bool Nothrow, typename Signature>
-struct SignalTraits;
+struct signal_traits;
 
 template<bool Nothrow, typename Ret, typename... Args>
-struct SignalTraits<Nothrow, Ret(Args...)>
+struct signal_traits<Nothrow, Ret(Args...)>
 {
     static constexpr bool is_nothrow = Nothrow;
 
@@ -26,40 +26,40 @@ struct SignalTraits<Nothrow, Ret(Args...)>
 
     using _base_signature_type = return_type(Args...);
 
-    // read as sigma::FunctionRef<return_type(Args...) noexcept(is_nothrow)>
-    using function_type = sigma::FunctionRef<
+    // read as sigma::function_ref<return_type(Args...) noexcept(is_nothrow)>
+    using function_type = sigma::function_ref<
         std::conditional_t<is_nothrow,
-                           sigma::AddSignatureNothrowT<_base_signature_type>,
+                           sigma::add_signature_nothrow_t<_base_signature_type>,
                            _base_signature_type>>;
 };
 
 template<typename Signature>
-class Signal final {
-    static_assert(sigma::IsSignatureV<Signature>,
+class signal final {
+    static_assert(sigma::is_signature_v<Signature>,
                   "Provided Signature is not a valid function signature");
 
-    static_assert(!sigma::IsConstSignatureV<Signature>,
+    static_assert(!sigma::is_signature_const_v<Signature>,
                   "Signature cannot have const qualifier");
-    static_assert(!sigma::IsVolatileSignatureV<Signature>,
+    static_assert(!sigma::is_signature_volatile_v<Signature>,
                   "Signature cannot have volatile qualifier");
-    static_assert(!sigma::IsLvalueSignatureV<Signature>,
+    static_assert(!sigma::is_signature_lvalue_v<Signature>,
                   "Signature cannot have lvalue qualifier");
-    static_assert(!sigma::IsRvalueSignatureV<Signature>,
+    static_assert(!sigma::is_signature_rvalue_v<Signature>,
                   "Signature cannot have rvalue qualifier");
 
 public:
-    using return_type    = sigma::SignatureReturnT<Signature>;
+    using return_type    = sigma::signature_return_t<Signature>;
     using signature_type = Signature;
-    using function_type  = sigma::FunctionRef<signature_type>;
+    using function_type  = sigma::function_ref<signature_type>;
     using container_type = std::vector<function_type>;
-    using mutex_type     = sigma::DummyMutex;
+    using mutex_type     = sigma::dummy_mutex;
 
 private:
     container_type m_slots;
     mutex_type     m_mutex;
 
 public:
-    Signal() = default;
+    signal() = default;
 
     /**
      * call each slot and apply -ret_func- to the returned value
@@ -94,7 +94,7 @@ public:
         */
 
     template<typename... Args>
-    std::vector<sigma::Result<return_type, false>>
+    std::vector<sigma::result<return_type, false>>
     emit_accumulate(Args&&... args)
     {
         std::vector<return_type> accumulator;

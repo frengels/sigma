@@ -160,60 +160,63 @@ struct Overloaded
 
 TEST_CASE("FunctionTraits")
 {
-    SECTION("IsFunction")
+    SECTION("is_function")
     {
         // regular type is not a function
-        CHECK_FALSE(sigma::IsFunction<std::string>::value);
+        CHECK_FALSE(sigma::is_function<std::string>::value);
 
         // all decltype variants work
-        CHECK(sigma::IsFunctionV<decltype(variadic)>);
-        CHECK(sigma::IsFunction<decltype(*variadic)>{});
-        CHECK(sigma::IsFunction<decltype(&variadic)>{});
+        CHECK(sigma::is_function_v<decltype(variadic)>);
+        CHECK(sigma::is_function<decltype(*variadic)>{});
+        CHECK(sigma::is_function<decltype(&variadic)>{});
 
         // non member functions
-        CHECK(sigma::IsFunction<decltype(normal)>::value);
-        CHECK(sigma::IsFunction<decltype(variadic)>::value);
-        CHECK(sigma::IsFunction<decltype(nothrow)>::value);
-        CHECK_FALSE(sigma::IsMemberFunctionPointerV<decltype(nothrow)>);
+        CHECK(sigma::is_function<decltype(normal)>::value);
+        CHECK(sigma::is_function<decltype(variadic)>::value);
+        CHECK(sigma::is_function<decltype(nothrow)>::value);
+        CHECK_FALSE(sigma::is_member_function_pointer_v<decltype(nothrow)>);
 
         // member functions
-        CHECK(sigma::IsMemberFunctionPointer<decltype(&foo::nrv_cv)>{});
-        CHECK(sigma::IsMemberFunctionPointerV<decltype(&foo::rv_cv)>);
+        CHECK(sigma::is_member_function_pointer<decltype(&foo::nrv_cv)>{});
+        CHECK(sigma::is_member_function_pointer_v<decltype(&foo::rv_cv)>);
     }
 
     SECTION("member functions")
     {
-        CHECK_FALSE(sigma::IsConstFunctionV<decltype(variadic)>);
+        CHECK_FALSE(sigma::is_function_const_v<decltype(variadic)>);
 
-        // CHECK(sigma::IsConstMemberFunctionPointerV<decltype(&foo::nrv_var_cv)>);
+        // CHECK(sigma::is_member_function_pointer_const_v<decltype(&foo::nrv_var_cv)>);
     }
 
     SECTION("return type")
     {
         /*
-        CHECK(std::is_same_v<sigma::FunctionReturnT<int(int, int, int)>, int>);
+        CHECK(std::is_same_v<sigma::function_return_t<int(int, int, int)>,
+        int>);
         // check with qualifiers
-        CHECK(std::is_same_v<sigma::FunctionReturnT<const double&() const>,
+        CHECK(std::is_same_v<sigma::function_return_t<const double&() const>,
                              const double&>);
                              */
         // check if we handle signature, pointer and reference funce correctly
         /*
-        CHECK(std::is_same_v<sigma::FunctionReturnT<decltype(variadic)>, void>);
-        CHECK(
-            std::is_same_v<sigma::FunctionReturnT<decltype(*variadic)>, void>);
-        CHECK(
-            std::is_same_v<sigma::FunctionReturnT<decltype(&variadic)>, void>);
+        CHECK(std::is_same_v<sigma::function_return_t<decltype(variadic)>,
+        void>); CHECK(
+            std::is_same_v<sigma::function_return_t<decltype(*variadic)>,
+        void>); CHECK(
+            std::is_same_v<sigma::function_return_t<decltype(&variadic)>,
+        void>);
 
         // check if member functions are handled correctly
-        CHECK(std::is_same_v<sigma::FunctionReturnT<decltype(&foo::nrv_var_cv)>,
+        CHECK(std::is_same_v<sigma::function_return_t<decltype(&foo::nrv_var_cv)>,
                              void>);
                              */
     }
 
     SECTION("nth parameter")
     {
-        CHECK(std::is_same_v<sigma::NthElementT<2, void, int, float>, float>);
-        CHECK(std::is_same_v<sigma::NthParameterT<0, decltype(&nth)>, int>);
+        CHECK(std::is_same_v<sigma::nth_element_t<2, void, int, float>, float>);
+        CHECK(std::is_same_v<sigma::function_nth_argument_t<0, decltype(&nth)>,
+                             int>);
     }
 
     SECTION("extract parameters")
@@ -221,21 +224,21 @@ TEST_CASE("FunctionTraits")
         auto lambda0 = [](int, float, int&) {};
         auto lambda1 = [](int, float, int&) noexcept {};
 
-        // CHECK(std::is_same_v<sigma::ParametersAsTupleT<decltype(lambda0)>,
+        // CHECK(std::is_same_v<sigma::signature_arguments_as_tuple_t<decltype(lambda0)>,
         //                     std::tuple<int, float, int&>>);
-        CHECK(std::is_same_v<sigma::ParametersAsTupleT<decltype(&nth)>,
-                             std::tuple<int>>);
+        CHECK(
+            std::is_same_v<sigma::function_arguments_as_tuple_t<decltype(&nth)>,
+                           std::tuple<int>>);
     }
 
     SECTION("signature")
     {
         CHECK(std::is_same_v<
               void() & noexcept,
-              sigma::MemberFunctionPointerSignatureT<decltype(&foo::nlv)>>);
-        CHECK_FALSE(
-            std::is_same_v<
-                void() noexcept,
-                sigma::MemberFunctionPointerSignatureT<decltype(&foo::nlv)>>);
+              sigma::member_function_pointer_signature_t<decltype(&foo::nlv)>>);
+        CHECK_FALSE(std::is_same_v<void() noexcept,
+                                   sigma::member_function_pointer_signature_t<
+                                       decltype(&foo::nlv)>>);
     }
 
     SECTION("selecting overloads")
@@ -247,6 +250,6 @@ TEST_CASE("FunctionTraits")
     {
         CHECK(std::is_same_v<
               foo,
-              sigma::MemberFunctionPointerClassT<decltype(&foo::nrv_cv)>>);
+              sigma::member_function_pointer_class_t<decltype(&foo::nrv_cv)>>);
     }
 }
