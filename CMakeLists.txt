@@ -11,5 +11,6 @@ find_package(Catch2 )
 add_subdirectory(sigma)
 
 if(SIGMA_INCLUDE_TESTS)
+enable_testing()
 add_subdirectory(tests)
 endif(SIGMA_INCLUDE_TESTS)
