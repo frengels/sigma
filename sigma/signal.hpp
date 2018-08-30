@@ -65,12 +65,11 @@ public:
      * call each slot and apply -ret_func- to the returned value
      */
     // TODO SFINAE for invocable on ReturnF
-    template<
-        typename ReturnF,
-        typename... Args,
-        typename = std::enable_if_t<std::is_invocable_v<ReturnF, return_type>>>
-    void operator()(ReturnF ret_func, Args&&... args) noexcept
+    template<typename... Args>
+    void operator()(Args&&... args) noexcept
     {
+        static_assert(std::is_invocable_v<function_type, Args&&...>,
+                      "Cannot invoke function_type with these arguments");
         std::lock_guard lock{m_mutex};
 
         for (auto& slot : m_slots)
@@ -78,7 +77,6 @@ public:
             try
             {
                 // TODO ret_func(std::invoke(slot,
-                // std::forward<Args>(args)...));
                 std::invoke(slot, std::forward<Args>(args)...);
             }
             catch (...)
@@ -87,15 +85,17 @@ public:
             }
         }
     }
+    /*
+        template<typename... Args>
+        void operator()(Args&&... args) noexcept
+        {
+            (*this)([](auto) {}, std::forward<Args>(args)...);
+        }
+        */
 
     template<typename... Args>
-    void operator()(Args&&... args) noexcept
-    {
-        (*this)([](auto) {}, std::forward<Args>(args)...);
-    }
-
-    template<typename... Args>
-    std::vector<return_type> emit_accumulate(Args&&... args)
+    std::vector<sigma::Result<return_type, false>>
+    emit_accumulate(Args&&... args)
     {
         std::vector<return_type> accumulator;
         accumulator.reserve(std::size(m_slots));
