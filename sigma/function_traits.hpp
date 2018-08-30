@@ -2056,7 +2056,9 @@ struct IsMemberFunctionPointer : public std::false_type
 
 template<typename T, typename Signature>
 struct IsMemberFunctionPointer<Signature(T::*)> : public IsSignature<Signature>
-{};
+{
+    static_assert(std::is_class_v<T>, "T is not a class");
+};
 
 template<typename MemFn>
 inline constexpr bool IsMemberFunctionPointerV =
@@ -2713,18 +2715,38 @@ using ParametersAsTupleT = typename ParametersAsTuple<Signature>::type;
 // selecting overloads
 
 template<typename Signature>
-struct Overload
+constexpr auto overload(Signature(*fn_ptr)) noexcept
+    -> std::enable_if_t<sigma::IsSignatureV<Signature> &&
+                            sigma::IsFunctionV<decltype(fn_ptr)> &&
+                            !sigma::IsConstSignatureV<Signature> &&
+                            !sigma::IsVolatileSignatureV<Signature> &&
+                            !sigma::IsLvalueSignatureV<Signature> &&
+                            !sigma::IsRvalueSignatureV<Signature>,
+                        Signature(*)>
 {
-    using function_ptr_type = Signature(*);
+    return fn_ptr;
+}
 
-    function_ptr_type value;
+template<typename Signature>
+constexpr auto overload(Signature(&fn_ref)) noexcept
+    -> std::enable_if_t<sigma::IsSignatureV<Signature> &&
+                            sigma::IsFunctionV<decltype(fn_ref)> &&
+                            !sigma::IsConstSignatureV<Signature> &&
+                            !sigma::IsVolatileSignatureV<Signature> &&
+                            !sigma::IsLvalueSignatureV<Signature> &&
+                            !sigma::IsRvalueSignatureV<Signature>,
+                        Signature(&)>
+{
+    return fn_ref;
+}
 
-    constexpr Overload(Signature(*f)) : value{f}
-    {}
-    constexpr Overload(Signature(&f)) : value{f}
-    {}
-    constexpr Overload(Signature f) : value{f}
-    {}
-};
+template<typename Signature, typename T>
+constexpr auto overload(Signature(T::*mem_fn)) noexcept
+    -> std::enable_if_t<sigma::IsSignatureV<Signature> &&
+                            sigma::IsMemberFunctionPointerV<decltype(mem_fn)>,
+                        Signature(T::*)>
+{
+    return mem_fn;
+}
 
 } // namespace sigma
