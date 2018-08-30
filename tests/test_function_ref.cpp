@@ -40,12 +40,10 @@ struct foo
         return 10;
     }
 
-    /*
-        constexpr int const_fun()
-        {
-            return 5;
-        }
-        */
+    constexpr int const_fun()
+    {
+        return 5;
+    }
 };
 
 int baz()
@@ -99,20 +97,22 @@ TEST_CASE("FunctionRef")
         // call from const member function
         const foo b{};
         auto      const_mem_fn =
-            sigma::FunctionRef<int()>::member_fn<&foo::const_fun>(b);
+            sigma::FunctionRef<int()>::member_fn<sigma::overload<int() const>(
+                &foo::const_fun)>(b);
 
-        CHECK(const_mem_fn() == 10);
+        CHECK(const_mem_fn() == 10); // call the const version which returns 10
 
         // will call the non const version and return 5;
         auto nonconst_fun =
-            sigma::FunctionRef<int()>::member_fn<&foo::const_fun>(g);
+            sigma::FunctionRef<int()>::member_fn<sigma::overload<int()>(
+                &foo::const_fun)>(g);
 
-        CHECK(nonconst_fun() == 5);
+        CHECK(nonconst_fun() ==
+              5); // call the non const version which returns 5
 
-        CHECK(sigma::is_const_member_function_pointer<decltype(
-                  &foo::const_fun)>::value);
-        CHECK_FALSE(sigma::is_const_member_function_pointer<decltype(
-                        &foo::bar)>::value);
+        CHECK(sigma::IsConstMemberFunctionPointerV<decltype(
+                  sigma::overload<int() const>(&foo::const_fun))>);
+        CHECK_FALSE(sigma::IsConstMemberFunctionPointerV<decltype(&foo::bar)>);
     }
 
     SECTION("operator bool")
@@ -124,8 +124,11 @@ TEST_CASE("FunctionRef")
 
     SECTION("noexcept")
     {
-        sigma::FunctionRef<int(int)> throwing_fn{test_func};
-        sigma::FunctionRef<int(int)> nothrow_fn{test_func_nothrow};
+        sigma::FunctionRef<int(int)>          throwing_fn{test_func};
+        sigma::FunctionRef<int(int) noexcept> nothrow_fn{test_func_nothrow};
+
+        CHECK(sigma::IsNothrowSignatureV<decltype(nothrow_fn)::signature_type>);
+        CHECK(decltype(nothrow_fn)::is_nothrow);
 
         CHECK_FALSE(std::is_nothrow_invocable_v<decltype(throwing_fn), int>);
         // maybe some day
