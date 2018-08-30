@@ -5,10 +5,23 @@
 #include <mutex>
 
 #include "sigma/dummy_mutex.hpp"
+#include "sigma/function_ref.hpp"
 #include "sigma/result.hpp"
 
 namespace sigma
 {
+
+template<bool Nothrow, typename Signature>
+struct SignalTraits;
+
+template<bool Nothrow, typename Ret, typename... Args>
+struct SignalTraits<Nothrow, Ret(Args...)>
+{
+    static constexpr bool is_nothrow = Nothrow;
+
+    using return_type = Ret;
+};
+
 template<typename Ret, typename... Args>
 class Signal;
 
@@ -16,7 +29,7 @@ template<typename Ret, typename... Args>
 class Signal<Ret(Args...)> {
 public:
     using return_type    = Ret;
-    using function_type  = std::function<return_type(Args...)>;
+    using function_type  = std::function<Ret(Args...)>;
     using container_type = std::vector<function_type>;
     using mutex_type     = sigma::DummyMutex;
 
@@ -69,16 +82,13 @@ public:
         return accumulator;
     }
 
-    void connect(function_type&& f)
+    template<
+        typename T,
+        typename = std::enable_if_t<
+            std::is_constructible_v<typename container_type::value_type, T&&>>>
+    void connect(T&& callable)
     {
-        auto insert_it = std::back_inserter(m_slots);
-        insert_it      = std::move(f);
-    }
-
-    void connect(const function_type& f)
-    {
-        auto insert_it = std::back_inserter(m_slots);
-        insert_it      = f;
+        m_slots.emplace_back(std::forward<T>(callable));
     }
 };
 } // namespace sigma
