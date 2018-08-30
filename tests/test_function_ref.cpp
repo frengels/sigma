@@ -30,6 +30,11 @@ struct foo
         return j;
     }
 
+    constexpr int operator()(int j, int k) const
+    {
+        return j + k;
+    }
+
     constexpr long bar(long l)
     {
         return i + l;
