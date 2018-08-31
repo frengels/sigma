@@ -2142,6 +2142,30 @@ struct signature_traits_helper<Ret(Args...),
         return Nothrow;
     }
 
+    template<typename Callable>
+    struct is_invocable
+        : public std::conditional_t<std::is_invocable_v<Callable, Args...>,
+                                    std::true_type,
+                                    std::false_type>
+    {};
+
+    template<typename Fn, typename... PArgs>
+    struct is_invocable_pre
+        : public std::conditional_t<std::is_invocable_v<Fn, PArgs..., Args...>,
+                                    std::true_type,
+                                    std::false_type>
+    {};
+
+    template<typename Callable>
+    struct is_nothrow_invocable
+        : public std::is_nothrow_invocable<Callable, Args...>
+    {};
+
+    template<typename Fn, typename... PArgs>
+    struct is_nothrow_invocable_pre
+        : public std::is_nothrow_invocable<Fn, PArgs..., Args...>
+    {};
+
     /**
      * a valid function signature cannot have const/volatile/lvalue/rvalue in
      * its signature.
@@ -2159,11 +2183,13 @@ struct signature_traits_helper<Ret(Args...),
         using type = detail::nth_element_t<N, Args...>;
     };
 
-    using _unqualified_signature   = Ret(Args...);
+    using unqualified_signature_type = Ret(Args...);
+
+    // details
     using _variadic_signature_type = std::conditional_t<
         is_variadic(),
-        sigma::add_signature_variadic_t<_unqualified_signature>,
-        _unqualified_signature>;
+        sigma::add_signature_variadic_t<unqualified_signature_type>,
+        unqualified_signature_type>;
     using _const_signature_type = std::conditional_t<
         is_const(),
         sigma::add_signature_const_t<_variadic_signature_type>,

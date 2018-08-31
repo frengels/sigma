@@ -25,6 +25,26 @@ struct function_ref_traits<Nothrow, Ret(Args...)>
 {
     static constexpr bool is_nothrow = Nothrow;
     using return_type                = Ret;
+    using signature_type = return_type(Args...) noexcept(is_nothrow);
+    using callback_type  = return_type (*)(void*, Args...) noexcept(is_nothrow);
+
+    template<typename T>
+    struct bind_pointer
+    {
+        using type = return_type (*)(T*, Args...) noexcept(is_nothrow);
+    };
+
+    template<typename T>
+    using bind_pointer_t = typename bind_pointer<T>::type;
+
+    template<typename T>
+    struct bind_reference
+    {
+        using type = return_type (*)(T&, Args...) noexcept(is_nothrow);
+    };
+
+    template<typename T>
+    using bind_reference_t = typename bind_reference<T>::type;
 
     /**
      * default function used with the default constructor
@@ -62,13 +82,35 @@ struct function_ref_traits<Nothrow, Ret(Args...)>
         return std::invoke(callable, std::forward<Args>(args)...);
     }
 
+    template<auto Fn, typename T>
+    static constexpr return_type
+    call_bound_ptr(void* obj, Args... args) noexcept(is_nothrow)
+    {
+        using decayed_T = std::remove_pointer_t<std::remove_reference_t<T>>;
+        static_assert(std::is_invocable_v<decltype(Fn), decayed_T*, Args...>,
+                      "Cannot call Fn with (T*, Args...)");
+        decayed_T* instance = static_cast<decayed_T*>(obj);
+        return std::invoke(Fn, instance, std::forward<Args>(args)...);
+    }
+
+    template<auto Fn, typename T>
+    static constexpr return_type
+    call_bound_ref(void* obj, Args... args) noexcept(is_nothrow)
+    {
+        using decayed_T = std::remove_pointer_t<std::remove_reference_t<T>>;
+        static_assert(std::is_invocable_v<decltype(Fn), decayed_T&, Args...>,
+                      "Cannot call Fn with (T&, Args...)");
+        T& instance = *static_cast<decayed_T*>(obj);
+        return std::invoke(Fn, instance, std::forward<Args>(args)...);
+    }
+
     template<auto MemFn, typename T>
     static constexpr return_type call_mem_fn(void* obj,
                                              Args... args) noexcept(is_nothrow)
     {
-        T&   instance = *static_cast<T*>(obj);
-        auto mem_fn   = MemFn;
-        return std::invoke(mem_fn, instance, std::forward<Args>(args)...);
+        using decayed_T     = std::remove_pointer_t<std::remove_reference_t<T>>;
+        decayed_T& instance = *static_cast<decayed_T*>(obj);
+        return std::invoke(MemFn, instance, std::forward<Args>(args)...);
     }
 };
 
@@ -91,32 +133,21 @@ class function_ref final {
 
 public:
     static constexpr bool is_nothrow = sigma::is_signature_nothrow_v<Signature>;
-    using return_type                = sigma::signature_return_t<Signature>;
     /**
      * signature of the function stored in this function_ref type, can be seen
      * as return_type (Args...) noexcept(is_nothrow)
      */
     using signature_type = Signature;
-
-    using traits_type = function_ref_traits<
+    using traits_type    = function_ref_traits<
         is_nothrow,
         sigma::remove_signature_qualifiers_t<signature_type>>;
+    using return_type = typename traits_type::return_type;
 
-    /**
-     * function signature without noexcept specifier, used as intermediate
-     * state. in the form return_type(void*, Args...) noexcept(false)
-     */
-    using _unqualified_callback_signature = sigma::make_signature_t<return_type(
-        void*,
-        sigma::signature_arguments_as_tuple_t<signature_type>)>;
     /**
      * function pointer in the form of return_type (*)(void*, Args...)
      * noexcept(true/false)
      */
-    using callback_type = std::add_pointer_t<std::conditional_t<
-        is_nothrow,
-        sigma::add_signature_nothrow_t<_unqualified_callback_signature>,
-        sigma::remove_signature_nothrow_t<_unqualified_callback_signature>>>;
+    using callback_type = typename traits_type::callback_type;
 
 private:
     void*               m_instance{nullptr};
@@ -189,29 +220,51 @@ public:
      * the function reference can be created as follows
      * sigma::function_ref<Signature>::member_fn<&class::mem_fn>(instance);
      */
-    template<auto MemFn, typename T>
+    template<auto Fn, typename T>
     static constexpr std::enable_if_t<
-        std::is_class_v<T> &&
-            sigma::is_member_function_pointer_v<decltype(MemFn)>,
+        (sigma::is_member_function_pointer_v<decltype(Fn)> ||
+         sigma::is_function_v<decltype(Fn)>) &&!std::is_rvalue_reference_v<T&&>,
         function_ref>
-    member_fn(T& obj) noexcept
+    bind(T&& obj) noexcept
     {
-        static_assert(sigma::is_member_function_pointer_v<decltype(MemFn)>,
-                      "MemFn must be a member function pointer");
-        using mem_fn_class_type =
-            sigma::member_function_pointer_class_t<decltype(MemFn)>;
-        static_assert(std::is_base_of_v<mem_fn_class_type, T>,
-                      "Member function pointer class "
-                      "is not a base of T");
-        static_assert(
-            !is_nothrow ||
-                sigma::is_member_function_pointer_nothrow_v<decltype(MemFn)>,
-            "If the function_ref is specified as nothrow then the "
-            "member function pointer must have a noexcept "
-            "qualifier");
+        using traits = typename sigma::signature_traits<Signature>;
 
-        return function_ref{std::addressof(obj),
-                            &traits_type::template call_mem_fn<MemFn, T>};
+        if constexpr (sigma::is_member_function_pointer_v<decltype(Fn)>)
+        {
+            using mem_fn_class_type =
+                sigma::member_function_pointer_class_t<decltype(Fn)>;
+            static_assert(std::is_base_of_v<mem_fn_class_type, std::decay_t<T>>,
+                          "Member function pointer class is not a base of T");
+            static_assert(
+                traits::is_nothrow_invocable_pre<decltype(Fn), T&&>::value ||
+                    (traits::is_invocable_pre<decltype(Fn), T&&>::value &&
+                     !is_nothrow),
+                "member function pointer is not invocable or does not satisfy "
+                "the nothrow qualifier");
+        }
+        else
+        {
+            static_assert(
+                traits::is_nothrow_invocable<decltype(Fn)>::value ||
+                    (traits::is_invocable<decltype(Fn)>::value && !is_nothrow),
+                "Function is not invocable or does not satisfy the nothrow "
+                "qualifier");
+        }
+
+        if constexpr (std::is_lvalue_reference_v<T&&>)
+        {
+            return function_ref{
+                std::addressof(obj),
+                &function_ref<
+                    Signature>::traits_type::template call_bound_ref<Fn, T>};
+        }
+        else if constexpr (std::is_pointer_v<T&&>)
+        {
+            return function_ref{
+                obj,
+                &function_ref<
+                    Signature>::traits_type::template call_bound_ptr<Fn, T>};
+        }
     }
 };
 } // namespace sigma
