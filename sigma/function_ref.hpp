@@ -153,6 +153,14 @@ public:
      */
     constexpr function_ref(const function_ref&) noexcept = default;
     constexpr function_ref& operator=(const function_ref&) noexcept = default;
+    constexpr function_ref& operator=(std::nullptr_t) noexcept
+    {
+        m_callback = &traits_type::default_uninit;
+        return *this;
+    }
+
+    constexpr function_ref(function_ref&&) noexcept = default;
+    constexpr function_ref& operator=(function_ref&&) noexcept = default;
 
     template<typename Callable,
              std::enable_if_t<!std::is_function_v<Callable>, int> = 0>
