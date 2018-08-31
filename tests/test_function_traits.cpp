@@ -214,7 +214,8 @@ TEST_CASE("FunctionTraits")
 
     SECTION("nth parameter")
     {
-        CHECK(std::is_same_v<sigma::nth_element_t<2, void, int, float>, float>);
+        CHECK(std::is_same_v<sigma::detail::nth_element_t<2, void, int, float>,
+                             float>);
         CHECK(std::is_same_v<sigma::function_nth_argument_t<0, decltype(&nth)>,
                              int>);
     }
