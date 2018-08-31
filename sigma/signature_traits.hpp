@@ -2146,7 +2146,7 @@ struct signature_traits_helper<Ret(Args...),
      * a valid function signature cannot have const/volatile/lvalue/rvalue in
      * its signature.
      */
-    static constexpr bool is_valid_function() noexcept
+    static constexpr bool is_valid_function_signature() noexcept
     {
         return !is_const() && !is_volatile() && !is_lvalue() && !is_rvalue();
     }
