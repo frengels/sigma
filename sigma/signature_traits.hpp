@@ -2085,6 +2085,134 @@ template<std::size_t N, typename Signature>
 using signature_nth_argument_t =
     typename signature_nth_argument<N, Signature>::type;
 
+namespace detail
+{
+template<typename Signature,
+         bool Variadic,
+         bool Const,
+         bool Volatile,
+         bool Lvalue,
+         bool Rvalue,
+         bool Nothrow>
+struct signature_traits_helper;
+
+template<typename Ret,
+         typename... Args,
+         bool Variadic,
+         bool Const,
+         bool Volatile,
+         bool Lvalue,
+         bool Rvalue,
+         bool Nothrow>
+struct signature_traits_helper<Ret(Args...),
+                               Variadic,
+                               Const,
+                               Volatile,
+                               Lvalue,
+                               Rvalue,
+                               Nothrow>
+{
+    static constexpr bool is_variadic() noexcept
+    {
+        return Variadic;
+    }
+
+    static constexpr bool is_const() noexcept
+    {
+        return Const;
+    }
+
+    static constexpr bool is_volatile() noexcept
+    {
+        return Volatile;
+    }
+
+    static constexpr bool is_lvalue() noexcept
+    {
+        return Lvalue;
+    }
+
+    static constexpr bool is_rvalue() noexcept
+    {
+        return Rvalue;
+    }
+
+    static constexpr bool is_nothrow() noexcept
+    {
+        return Nothrow;
+    }
+
+    /**
+     * a valid function signature cannot have const/volatile/lvalue/rvalue in
+     * its signature.
+     */
+    static constexpr bool is_valid_function() noexcept
+    {
+        return !is_const() && !is_volatile() && !is_lvalue() && !is_rvalue();
+    }
+
+    template<std::size_t N>
+    struct argument
+    {
+        static_assert(N < sizeof...(Args),
+                      "N higher than the number of present Args");
+        using type = detail::nth_element_t<N, Args...>;
+    };
+
+    using _unqualified_signature   = Ret(Args...);
+    using _variadic_signature_type = std::conditional_t<
+        is_variadic(),
+        sigma::add_signature_variadic_t<_unqualified_signature>,
+        _unqualified_signature>;
+    using _const_signature_type = std::conditional_t<
+        is_const(),
+        sigma::add_signature_const_t<_variadic_signature_type>,
+        _variadic_signature_type>;
+    using _volatile_signature_type = std::conditional_t<
+        is_volatile(),
+        sigma::add_signature_volatile_t<_const_signature_type>,
+        _const_signature_type>;
+    using _lvalue_signature_type = std::conditional_t<
+        is_lvalue(),
+        sigma::add_signature_lvalue_t<_volatile_signature_type>,
+        _volatile_signature_type>;
+    using _rvalue_signature_type = std::conditional_t<
+        is_rvalue(),
+        sigma::add_signature_rvalue_t<_lvalue_signature_type>,
+        _lvalue_signature_type>;
+    using _nothrow_signature_type = std::conditional_t<
+        is_nothrow(),
+        sigma::add_signature_nothrow_t<_rvalue_signature_type>,
+        _rvalue_signature_type>;
+
+    using return_type = Ret;
+
+    using signature_type = _nothrow_signature_type;
+    using function_type  = signature_type;
+
+    using function_ptr_type = std::add_pointer_t<function_type>;
+    using function_ref_type = std::add_lvalue_reference_t<function_type>;
+
+    template<typename T>
+    using member_function_pointer_type = signature_type(T::*);
+};
+
+} // namespace detail
+
+template<typename Signature>
+struct signature_traits : public detail::signature_traits_helper<
+                              sigma::remove_signature_qualifiers_t<Signature>,
+                              sigma::is_signature_variadic_v<Signature>,
+                              sigma::is_signature_const_v<Signature>,
+                              sigma::is_signature_volatile_v<Signature>,
+                              sigma::is_signature_lvalue_v<Signature>,
+                              sigma::is_signature_rvalue_v<Signature>,
+                              sigma::is_signature_nothrow_v<Signature>>
+{
+    static_assert(sigma::is_signature_v<Signature>,
+                  "Provided signature is not valid");
+};
+
 } // namespace sigma
 
 #endif
