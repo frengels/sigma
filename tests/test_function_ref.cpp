@@ -95,21 +95,21 @@ TEST_CASE("function_ref")
     {
         foo  g{};
         auto mem_fn_from_ref =
-            sigma::function_ref<long(long)>::member_fn<&foo::bar>(g);
+            sigma::function_ref<long(long)>::bind<&foo::bar>(g);
 
         CHECK(mem_fn_from_ref(0) == 5);
 
         // call from const member function
         const foo b{};
         auto      const_mem_fn =
-            sigma::function_ref<int()>::member_fn<sigma::overload<int() const>(
+            sigma::function_ref<int()>::bind<sigma::overload<int() const>(
                 &foo::const_fun)>(b);
 
         CHECK(const_mem_fn() == 10); // call the const version which returns 10
 
         // will call the non const version and return 5;
         auto nonconst_fun =
-            sigma::function_ref<int()>::member_fn<sigma::overload<int()>(
+            sigma::function_ref<int()>::bind<sigma::overload<int()>(
                 &foo::const_fun)>(g);
 
         CHECK(nonconst_fun() ==
@@ -137,9 +137,40 @@ TEST_CASE("function_ref")
                   nothrow_fn)::signature_type>);
         CHECK(decltype(nothrow_fn)::is_nothrow);
 
-        CHECK_FALSE(std::is_nothrow_invocable_v<decltype(throwing_fn), int>);
-        // maybe some day
-        CHECK(std::is_nothrow_invocable_v<decltype(nothrow_fn), int>);
+        CHECK_FALSE(sigma::is_nothrow_invocable_v<decltype(throwing_fn), int>);
+        CHECK(sigma::is_nothrow_invocable_v<decltype(nothrow_fn), int>);
+    }
+
+    SECTION("bind own object")
+    {
+        // since there is one pointer for the function pointer and one for an
+        // instance pointer, we can bind any object we want there. This tests
+        // that functionality
+
+        int i{0}; // i to be changed
+
+        struct simple_obj
+        {
+            std::reference_wrapper<int> i;
+
+            simple_obj(int& i) : i{i}
+            {}
+
+            void func(int i, double d, float f)
+            {
+                this->i.get() += i;
+            }
+        };
+
+        simple_obj o{i};
+
+        sigma::function_ref<void(int, double, float)> bind_object =
+            sigma::function_ref<void(
+                int, double, float)>::bind<&simple_obj::func>(o);
+
+        bind_object(5, 1.0, 1.0f);
+
+        CHECK(i == 5);
     }
 
     SECTION("void return"){
