@@ -3,6 +3,8 @@
 
 #pragma once
 
+#include "sigma/parameter_list.hpp"
+
 namespace sigma
 {
 // add function qualifiers
@@ -1916,112 +1918,33 @@ using signature_return_t = typename signature_return<Signature>::type;
 namespace detail
 {
 template<typename Signature>
-struct signature_arguments_as_tuple_helper;
+struct signature_parameter_list_helper;
 
 template<typename Ret, typename... Args>
-struct signature_arguments_as_tuple_helper<Ret(Args...)>
+struct signature_parameter_list_helper<Ret(Args...)>
 {
-    using type = std::tuple<Args...>;
+    using type = sigma::parameter_list<Args...>;
 };
 } // namespace detail
 
 template<typename Signature>
-struct signature_arguments_as_tuple
-    : public detail::signature_arguments_as_tuple_helper<
+struct signature_parameter_list
+    : public detail::signature_parameter_list_helper<
           remove_signature_qualifiers_t<Signature>>
 {};
 
 template<typename Signature>
-using signature_arguments_as_tuple_t =
-    typename signature_arguments_as_tuple<Signature>::type;
-
-// merge function signature from 2 tuples
+using signature_parameter_list_t =
+    typename signature_parameter_list<Signature>::type;
 
 namespace detail
 {
-// functionality to merge any tuple and other elements into a tuple
-template<typename... Ts>
-struct merge_tuples
-{
-    using type = std::tuple<Ts...>;
-};
-
-template<>
-struct merge_tuples<>
-{
-    using type = std::tuple<>;
-};
-
-template<typename T>
-struct merge_tuples<T>
-{
-    using type = std::tuple<T>;
-};
-
-template<typename... Ts>
-struct merge_tuples<std::tuple<Ts...>>
-{
-    using type = std::tuple<Ts...>;
-};
-
-template<typename... T1s, typename... T2s>
-struct merge_tuples<std::tuple<T1s...>, std::tuple<T2s...>>
-{
-    using type = std::tuple<T1s..., T2s...>;
-};
-
-template<typename T1, typename T2>
-struct merge_tuples<T1, T2>
-{
-    using type = std::tuple<T1, T2>;
-};
-
-template<typename T, typename... Ts>
-struct merge_tuples<T, std::tuple<Ts...>>
-{
-    using type = std::tuple<T, Ts...>;
-};
-
-template<typename... Ts, typename T>
-struct merge_tuples<std::tuple<Ts...>, T>
-{
-    using type = std::tuple<Ts..., T>;
-};
-
-template<typename... Ts, typename T, typename... Rest>
-struct merge_tuples<std::tuple<Ts...>, T, Rest...>
-{
-    using temp = typename merge_tuples<Rest...>::type;
-    using type = typename merge_tuples<std::tuple<Ts..., T>, temp>::type;
-};
-
-template<typename T, typename... Ts, typename... Rest>
-struct merge_tuples<T, std::tuple<Ts...>, Rest...>
-{
-    using temp = typename merge_tuples<Rest...>::type;
-    using type = typename merge_tuples<std::tuple<T, Ts...>, temp>::type;
-};
-
-template<typename... T1s, typename... T2s, typename... Rest>
-struct merge_tuples<std::tuple<T1s...>, std::tuple<T2s...>, Rest...>
-{
-    using temp = typename merge_tuples<Rest...>::type;
-    using type = typename merge_tuples<std::tuple<T1s..., T2s...>, temp>::type;
-};
-
-template<typename T1, typename T2, typename... Rest>
-struct merge_tuples<T1, T2, Rest...>
-{
-    using temp = typename merge_tuples<Rest...>::type;
-    using type = typename merge_tuples<std::tuple<T1, T2>, temp>::type;
-};
-
 // the final merge from return and a single tuple
 template<typename Signature>
 struct make_signature_helper;
 
 template<typename Ret, typename... Args>
-struct make_signature_helper<Ret(std::tuple<Args...>)>
+struct make_signature_helper<Ret(sigma::parameter_list<Args...>)>
 {
     using type = Ret(Args...);
 };
@@ -2034,56 +1957,40 @@ template<typename Ret, typename... Args>
 struct make_signature<Ret(Args...)>
 {
     using type = typename detail::make_signature_helper<Ret(
-        typename detail::merge_tuples<Args...>::type)>::type;
+        typename sigma::merge_parameter_list<Args...>::type)>::type;
 };
 
 template<typename Signature>
 using make_signature_t = typename make_signature<Signature>::type;
-
-// get nth element
-
-namespace detail
-{
-
-template<std::size_t N, typename... Ts>
-struct nth_element
-{
-    static_assert(N < sizeof...(Ts),
-                  "provided N larger than the amount of types available");
-    using type = typename std::tuple_element<N, std::tuple<Ts...>>::type;
-};
-
-template<std::size_t N, typename... Ts>
-using nth_element_t = typename nth_element<N, Ts...>::type;
-} // namespace detail
 
 // get nth parameter
 
 namespace detail
 {
 template<std::size_t N, typename Signature>
-struct signature_nth_argument_helper;
+struct signature_nth_parameter_helper;
 
 template<std::size_t N, typename Ret, typename... Args>
-struct signature_nth_argument_helper<N, Ret(Args...)>
+struct signature_nth_parameter_helper<N, Ret(Args...)>
 {
-    static_assert(N < sizeof...(Args), "N larger than the number of arguments");
-    using type = sigma::detail::nth_element_t<N, Args...>;
+    static_assert(N < sizeof...(Args), "N is out of bounds");
+    using type = typename sigma::parameter_list<Args...>::template at<N>::type;
 };
 } // namespace detail
 
 template<std::size_t N, typename Signature>
-struct signature_nth_argument : detail::signature_nth_argument_helper<
-                                    N,
-                                    remove_signature_qualifiers_t<Signature>>
+struct signature_nth_parameter
+    : detail::signature_nth_parameter_helper<
+          N,
+          sigma::remove_signature_qualifiers_t<Signature>>
 {
     static_assert(sigma::is_signature_v<Signature>,
                   "provided Signature is not a valid function signature");
 };
 
 template<std::size_t N, typename Signature>
-using signature_nth_argument_t =
-    typename signature_nth_argument<N, Signature>::type;
+using signature_nth_parameter_t =
+    typename signature_nth_parameter<N, Signature>::type;
 
 namespace detail
 {
@@ -2142,30 +2049,6 @@ struct signature_traits_helper<Ret(Args...),
         return Nothrow;
     }
 
-    template<typename Callable>
-    struct is_invocable
-        : public std::conditional_t<std::is_invocable_v<Callable, Args...>,
-                                    std::true_type,
-                                    std::false_type>
-    {};
-
-    template<typename Fn, typename... PArgs>
-    struct is_invocable_pre
-        : public std::conditional_t<std::is_invocable_v<Fn, PArgs..., Args...>,
-                                    std::true_type,
-                                    std::false_type>
-    {};
-
-    template<typename Callable>
-    struct is_nothrow_invocable
-        : public std::is_nothrow_invocable<Callable, Args...>
-    {};
-
-    template<typename Fn, typename... PArgs>
-    struct is_nothrow_invocable_pre
-        : public std::is_nothrow_invocable<Fn, PArgs..., Args...>
-    {};
-
     /**
      * a valid function signature cannot have const/volatile/lvalue/rvalue in
      * its signature.
@@ -2175,13 +2058,7 @@ struct signature_traits_helper<Ret(Args...),
         return !is_const() && !is_volatile() && !is_lvalue() && !is_rvalue();
     }
 
-    template<std::size_t N>
-    struct argument
-    {
-        static_assert(N < sizeof...(Args),
-                      "N higher than the number of present Args");
-        using type = detail::nth_element_t<N, Args...>;
-    };
+    using parameter_list = typename sigma::parameter_list<Args...>;
 
     using unqualified_signature_type = Ret(Args...);
 

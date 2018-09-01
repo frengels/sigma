@@ -638,40 +638,43 @@ using member_function_pointer_return_t =
     typename member_function_pointer_return<MemFn>::type;
 
 template<std::size_t N, typename Fn>
-struct function_nth_argument
-    : public signature_nth_argument<N, function_signature_t<Fn>>
+struct function_nth_parameter
+    : public sigma::signature_nth_parameter<N, function_signature_t<Fn>>
 {
     static_assert(sigma::is_function_v<Fn>, "Fn is not a function");
 };
 
 template<std::size_t N, typename Fn>
-using function_nth_argument_t = typename function_nth_argument<N, Fn>::type;
+using function_nth_parameter_t = typename function_nth_parameter<N, Fn>::type;
 
 template<std::size_t N, typename MemFn>
-struct member_function_pointer_nth_argument
-    : public signature_nth_argument<N,
-                                    member_function_pointer_signature_t<MemFn>>
+struct member_function_pointer_nth_parameter
+    : public signature_nth_parameter<N,
+                                     member_function_pointer_signature_t<MemFn>>
 {
     static_assert(sigma::is_member_function_pointer_v<MemFn>,
                   "MemFn is not a member function pointer");
 };
 
+template<std::size_t N, typename MemFn>
+using member_function_pointer_nth_parameter_t =
+    typename member_function_pointer_nth_parameter<N, MemFn>::type;
+
 // get parameters as tuple
 
 template<typename Fn>
-struct function_arguments_as_tuple
-    : public signature_arguments_as_tuple<sigma::function_signature_t<Fn>>
+struct function_parameter_list
+    : public signature_parameter_list<sigma::function_signature_t<Fn>>
 {
     static_assert(sigma::is_function_v<Fn>, "Fn is not a function");
 };
 
 template<typename Fn>
-using function_arguments_as_tuple_t =
-    typename function_arguments_as_tuple<Fn>::type;
+using function_parameter_list_t = typename function_parameter_list<Fn>::type;
 
 template<typename MemFn>
-struct member_function_pointer_arguments_as_tuple
-    : public signature_arguments_as_tuple<
+struct member_function_pointer_parameter_list
+    : public signature_parameter_list<
           sigma::member_function_pointer_signature_t<MemFn>>
 {
     static_assert(sigma::is_member_function_pointer_v<MemFn>,
