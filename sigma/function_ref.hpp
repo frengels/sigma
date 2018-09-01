@@ -87,7 +87,10 @@ struct function_ref_traits<Nothrow, Ret(Args...)>
     call_bound_ptr(void* obj, Args... args) noexcept(is_nothrow)
     {
         using decayed_T = std::remove_pointer_t<std::remove_reference_t<T>>;
-        static_assert(std::is_invocable_v<decltype(Fn), decayed_T*, Args...>,
+        static_assert(std::is_invocable_r_v<return_type,
+                                            decltype(Fn),
+                                            decayed_T*,
+                                            Args...>,
                       "Cannot call Fn with (T*, Args...)");
         decayed_T* instance = static_cast<decayed_T*>(obj);
         return std::invoke(Fn, instance, std::forward<Args>(args)...);
@@ -98,7 +101,10 @@ struct function_ref_traits<Nothrow, Ret(Args...)>
     call_bound_ref(void* obj, Args... args) noexcept(is_nothrow)
     {
         using decayed_T = std::remove_pointer_t<std::remove_reference_t<T>>;
-        static_assert(std::is_invocable_v<decltype(Fn), decayed_T&, Args...>,
+        static_assert(sigma::is_invocable_r_v<return_type,
+                                              decltype(Fn),
+                                              decayed_T&,
+                                              Args...>,
                       "Cannot call Fn with (T&, Args...)");
         T& instance = *static_cast<decayed_T*>(obj);
         return std::invoke(Fn, instance, std::forward<Args>(args)...);
@@ -203,9 +209,10 @@ public:
     template<typename... Args>
     constexpr return_type operator()(Args&&... args) const noexcept(is_nothrow)
     {
-        static_assert(sigma::is_invocable_v<decltype(m_callback),
-                                            decltype(m_instance),
-                                            Args&&...>,
+        static_assert(sigma::is_invocable_r_v<return_type,
+                                              decltype(m_callback),
+                                              decltype(m_instance),
+                                              Args&&...>,
                       "Cannot call function_ref with the provided arguments");
         return std::invoke(m_callback, m_instance, std::forward<Args>(args)...);
     }
@@ -236,13 +243,15 @@ public:
             static_assert(std::is_base_of_v<mem_fn_class_type, std::decay_t<T>>,
                           "Member function pointer class is not a base of T");
             static_assert(
-                sigma::is_nothrow_invocable_v<
+                sigma::is_nothrow_invocable_r_v<
+                    return_type,
                     decltype(Fn),
                     T&&,
                     typename traits::parameter_list> ||
-                    (sigma::is_invocable_v<decltype(Fn),
-                                           T&&,
-                                           typename traits::parameter_list> &&
+                    (sigma::is_invocable_r_v<return_type,
+                                             decltype(Fn),
+                                             T&&,
+                                             typename traits::parameter_list> &&
                      !is_nothrow),
                 "member function pointer is not invocable or does not satisfy "
                 "the nothrow qualifier");
@@ -250,11 +259,13 @@ public:
         else
         {
             static_assert(
-                sigma::is_nothrow_invocable_v<
+                sigma::is_nothrow_invocable_r_v<
+                    return_type,
                     decltype(Fn),
                     typename traits::parameter_list> ||
-                    (sigma::is_invocable_v<decltype(Fn),
-                                           typename traits::parameter_list> &&
+                    (sigma::is_invocable_r_v<return_type,
+                                             decltype(Fn),
+                                             typename traits::parameter_list> &&
                      !is_nothrow),
                 "Function is not invocable or does not satisfy the nothrow "
                 "qualifier");
