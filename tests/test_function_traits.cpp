@@ -214,9 +214,10 @@ TEST_CASE("FunctionTraits")
 
     SECTION("nth parameter")
     {
-        CHECK(std::is_same_v<sigma::detail::nth_element_t<2, void, int, float>,
-                             float>);
-        CHECK(std::is_same_v<sigma::function_nth_argument_t<0, decltype(&nth)>,
+        CHECK(
+            std::is_same_v<sigma::parameter_list<void, int, float>::at<2>::type,
+                           float>);
+        CHECK(std::is_same_v<sigma::function_nth_parameter_t<0, decltype(&nth)>,
                              int>);
     }
 
@@ -225,11 +226,10 @@ TEST_CASE("FunctionTraits")
         auto lambda0 = [](int, float, int&) {};
         auto lambda1 = [](int, float, int&) noexcept {};
 
-        // CHECK(std::is_same_v<sigma::signature_arguments_as_tuple_t<decltype(lambda0)>,
+        // CHECK(std::is_same_v<sigma::signature_parameter_list_t<decltype(lambda0)>,
         //                     std::tuple<int, float, int&>>);
-        CHECK(
-            std::is_same_v<sigma::function_arguments_as_tuple_t<decltype(&nth)>,
-                           std::tuple<int>>);
+        CHECK(std::is_same_v<sigma::function_parameter_list_t<decltype(&nth)>,
+                             sigma::parameter_list<int>>);
     }
 
     SECTION("signature")
