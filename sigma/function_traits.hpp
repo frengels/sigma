@@ -693,12 +693,28 @@ struct is_invocable_helper<Fn, sigma::parameter_list<Args...>>
     : public std::is_invocable<Fn, Args...>
 {};
 
+template<typename R, typename Fn, typename... Args>
+struct is_invocable_helper_r;
+
+template<typename R, typename Fn, typename... Args>
+struct is_invocable_helper_r<R, Fn, sigma::parameter_list<Args...>>
+    : public std::is_invocable_r<R, Fn, Args...>
+{};
+
 template<typename Fn, typename... Args>
 struct is_nothrow_invocable_helper;
 
 template<typename Fn, typename... Args>
 struct is_nothrow_invocable_helper<Fn, sigma::parameter_list<Args...>>
     : public std::is_nothrow_invocable<Fn, Args...>
+{};
+
+template<typename R, typename Fn, typename... Args>
+struct is_nothrow_invocable_helper_r;
+
+template<typename R, typename Fn, typename... Args>
+struct is_nothrow_invocable_helper_r<R, Fn, sigma::parameter_list<Args...>>
+    : public std::is_nothrow_invocable_r<R, Fn, Args...>
 {};
 } // namespace detail
 
@@ -708,8 +724,19 @@ struct is_invocable : public detail::is_invocable_helper<
                           typename sigma::merge_parameter_list<Args...>::type>
 {};
 
+template<typename R, typename Fn, typename... Args>
+struct is_invocable_r : public detail::is_invocable_helper_r<
+                            R,
+                            Fn,
+                            typename sigma::merge_parameter_list<Args...>::type>
+{};
+
 template<typename Fn, typename... Args>
 inline constexpr bool is_invocable_v = sigma::is_invocable<Fn, Args...>::value;
+
+template<typename R, typename Fn, typename... Args>
+inline constexpr bool is_invocable_r_v =
+    sigma::is_invocable_r<R, Fn, Args...>::value;
 
 template<typename Fn, typename... Args>
 struct is_nothrow_invocable
@@ -718,9 +745,21 @@ struct is_nothrow_invocable
           typename sigma::merge_parameter_list<Args...>::type>
 {};
 
+template<typename R, typename Fn, typename... Args>
+struct is_nothrow_invocable_r
+    : public detail::is_nothrow_invocable_helper_r<
+          R,
+          Fn,
+          typename sigma::merge_parameter_list<Args...>::type>
+{};
+
 template<typename Fn, typename... Args>
 inline constexpr bool is_nothrow_invocable_v =
     sigma::is_nothrow_invocable<Fn, Args...>::value;
+
+template<typename R, typename Fn, typename... Args>
+inline constexpr bool is_nothrow_invocable_r_v =
+    sigma::is_nothrow_invocable_r<R, Fn, Args...>::value;
 
 // selecting overloads
 
