@@ -681,6 +681,47 @@ struct member_function_pointer_parameter_list
                   "MemFn is not a member function pointer");
 };
 
+// invocable trait specialized for handling parameter_list
+
+namespace detail
+{
+template<typename Fn, typename... Args>
+struct is_invocable_helper;
+
+template<typename Fn, typename... Args>
+struct is_invocable_helper<Fn, sigma::parameter_list<Args...>>
+    : public std::is_invocable<Fn, Args...>
+{};
+
+template<typename Fn, typename... Args>
+struct is_nothrow_invocable_helper;
+
+template<typename Fn, typename... Args>
+struct is_nothrow_invocable_helper<Fn, sigma::parameter_list<Args...>>
+    : public std::is_nothrow_invocable<Fn, Args...>
+{};
+} // namespace detail
+
+template<typename Fn, typename... Args>
+struct is_invocable : public detail::is_invocable_helper<
+                          Fn,
+                          typename sigma::merge_parameter_list<Args...>::type>
+{};
+
+template<typename Fn, typename... Args>
+inline constexpr bool is_invocable_v = sigma::is_invocable<Fn, Args...>::value;
+
+template<typename Fn, typename... Args>
+struct is_nothrow_invocable
+    : public detail::is_nothrow_invocable_helper<
+          Fn,
+          typename sigma::merge_parameter_list<Args...>::type>
+{};
+
+template<typename Fn, typename... Args>
+inline constexpr bool is_nothrow_invocable_v =
+    sigma::is_nothrow_invocable<Fn, Args...>::value;
+
 // selecting overloads
 
 template<typename Signature>
