@@ -20,3 +20,8 @@ add_executable(test_function_traits test_function_traits.cpp)
 target_include_directories(test_function_traits PRIVATE ${CMAKE_SOURCE_DIR})
 target_link_libraries(test_function_traits Catch2::Catch2)
 add_test(function_traits test_function_traits)
+
+add_executable(test_handle_vector test_handle_vector.cpp)
+target_include_directories(test_handle_vector PRIVATE ${CMAKE_SOURCE_DIR})
+target_link_libraries(test_handle_vector Catch2::Catch2)
+add_test(handle_vector test_handle_vector)
