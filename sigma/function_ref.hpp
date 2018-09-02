@@ -156,8 +156,8 @@ public:
     using callback_type = typename traits_type::callback_type;
 
 private:
-    void*               m_instance{nullptr};
-    const callback_type m_callback{&traits_type::default_uninit};
+    void*         m_instance{nullptr};
+    callback_type m_callback{&traits_type::default_uninit};
 
 private:
     /**
@@ -205,6 +205,26 @@ public:
         : function_ref{std::addressof(callable),
                        &traits_type::template call_functor<Callable>}
     {}
+
+    constexpr bool operator==(const function_ref& other) const noexcept
+    {
+        return other.m_instance == m_instance && other.m_callback == m_callback;
+    }
+
+    constexpr bool operator!=(const function_ref& other) const noexcept
+    {
+        return !(*this == other);
+    }
+
+    constexpr bool operator==(std::nullptr_t) const noexcept
+    {
+        return bool(*this);
+    }
+
+    constexpr bool operator!=(std::nullptr_t) const noexcept
+    {
+        return !bool(*this);
+    }
 
     template<typename... Args>
     constexpr return_type operator()(Args&&... args) const noexcept(is_nothrow)
