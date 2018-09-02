@@ -190,6 +190,7 @@ public:
      */
     void disconnect(sigma::connection& c)
     {
+        std::lock_guard lock{m_mutex};
         m_slots.erase(c.m_handle);
     }
 };
