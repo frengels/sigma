@@ -16,9 +16,11 @@ public:
     template<typename Sig>
     friend class signal;
 
+    using handle_type = sigma::vector_handle;
+
 private:
     std::weak_ptr<sigma::disconnector_base> m_disconnector;
-    sigma::vector_handle                    m_handle;
+    handle_type                             m_handle;
     // some weak reference to the signal_base : std_enable_shared_from_this
 private:
     // a connection can only be created by the signal
@@ -35,6 +37,12 @@ public:
     connection& operator=(connection&&) noexcept = default;
 
     void disconnect();
+
+private:
+    inline handle_type handle() const noexcept
+    {
+        return m_handle;
+    }
 };
 } // namespace sigma
 
