@@ -1,6 +1,7 @@
 #define CATCH_CONFIG_MAIN
 #include <catch2/catch.hpp>
 
+#include "sigma/scoped_connection.hpp"
 #include "sigma/signal.hpp"
 
 struct Functor
@@ -42,6 +43,19 @@ struct Functor
     {
         copy += i;
         move += i;
+    }
+};
+
+struct simple
+{
+    int* i;
+
+    simple(int* i) : i{i}
+    {}
+
+    void add(int j)
+    {
+        *i += j;
     }
 };
 
@@ -119,5 +133,24 @@ TEST_CASE("Connections")
 
         CHECK(copy == 10);
         CHECK(move == 10);
+    }
+
+    SECTION("scoped_connection")
+    {
+        int    i = 0;
+        simple obj(&i);
+
+        {
+            sigma::scoped_connection conn = test.connect(
+                sigma::function_ref<void(int)>::bind<&simple::add>(obj));
+            CHECK(i == 0);
+
+            test(5);
+            CHECK(i == 5);
+        }
+        // raii disconnects us
+
+        test(5);
+        CHECK(i == 5);
     }
 }

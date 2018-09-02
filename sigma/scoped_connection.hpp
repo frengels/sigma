@@ -3,11 +3,13 @@
 
 #pragma once
 
+#include "sigma/connection.hpp"
+
 namespace sigma
 {
 class scoped_connection {
 private:
-    connection m_con;
+    sigma::connection m_con;
 
 public:
     /**
