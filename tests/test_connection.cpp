@@ -153,4 +153,22 @@ TEST_CASE("Connections")
         test(5);
         CHECK(i == 5);
     }
+
+    SECTION("multiple disconnect")
+    {
+        int    i = 0;
+        simple obj(&i);
+
+        auto conn = test.connect(
+            sigma::function_ref<void(int)>::bind<&simple::add>(obj));
+
+        test(5);
+        CHECK(i == 5);
+
+        conn.disconnect();
+        CHECK_THROWS_AS(conn.disconnect(), sigma::bad_handle_access);
+
+        test(5);
+        CHECK(i == 5);
+    }
 }
