@@ -80,7 +80,8 @@ struct vector_handle : public handle_base<uint32_t, uint32_t>
  * this vector uses handles to uniquely identify objects so that elements
  * can internally move around without outside objects losing their reference
  */
-template<typename T, template<typename> typename Vector = std::vector>
+template<typename T,
+         template<typename> typename Vector = detail::small_vector_adapter>
 class handle_vector {
 public:
     using value_vector    = Vector<T>;
