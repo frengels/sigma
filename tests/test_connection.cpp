@@ -38,8 +38,11 @@ struct Functor
         return *this;
     }
 
-    void operator()(int)
-    {}
+    void operator()(int i)
+    {
+        copy += i;
+        move += i;
+    }
 };
 
 TEST_CASE("Connections")
@@ -93,7 +96,7 @@ TEST_CASE("Connections")
         int move = 5;
 
         Functor f{copy, move};
-        test.connect(f);
+        auto    fcon = test.connect(f);
 
         // don't know why both the move happens in this case
 
@@ -104,5 +107,17 @@ TEST_CASE("Connections")
         // with sigma::function_ref only a reference is taken
         CHECK(copy == 5);
         CHECK(move == 5);
+
+        test(5);
+
+        CHECK(copy == 10);
+        CHECK(move == 10);
+
+        fcon.disconnect();
+
+        test(5);
+
+        CHECK(copy == 10);
+        CHECK(move == 10);
     }
 }

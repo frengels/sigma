@@ -3,7 +3,7 @@ endfunction()
 
 add_executable(test_connection test_connection.cpp)
 target_include_directories(test_connection PRIVATE ${CMAKE_SOURCE_DIR})
-target_link_libraries(test_connection Catch2::Catch2)
+target_link_libraries(test_connection Catch2::Catch2 sigma)
 add_test(connection test_connection)
 
 add_executable(test_function_ref test_function_ref.cpp)
