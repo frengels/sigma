@@ -36,7 +36,8 @@ public:
     connection(connection&&) noexcept = default;
     connection& operator=(connection&&) noexcept = default;
 
-    void disconnect();
+    bool alive() const noexcept;
+    void disconnect() noexcept(false);
 
 private:
     inline handle_type handle() const noexcept

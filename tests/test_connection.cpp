@@ -171,4 +171,22 @@ TEST_CASE("Connections")
         test(5);
         CHECK(i == 5);
     }
+
+    SECTION("disconnect invalid signal")
+    {
+        int    i = 0;
+        simple obj{&i};
+
+        auto conn = std::invoke([&]() -> sigma::connection {
+            sigma::signal<void(int)> sig;
+            auto                     ret = sig.connect(
+                sigma::function_ref<void(int)>::bind<&simple::add>(obj));
+
+            CHECK(ret.alive());
+            return ret;
+        });
+
+        CHECK(!conn.alive());
+        conn.disconnect();
+    }
 }

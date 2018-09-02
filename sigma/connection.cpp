@@ -4,7 +4,12 @@
 
 namespace sigma
 {
-void connection::disconnect()
+bool connection::alive() const noexcept
+{
+    return !m_disconnector.expired();
+}
+
+void connection::disconnect() noexcept(false)
 {
     auto d = m_disconnector.lock();
 
