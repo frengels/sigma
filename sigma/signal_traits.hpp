@@ -38,6 +38,12 @@ struct default_signal_traits
     {
         return c.erase(h);
     }
+
+    template<typename Sig>
+    static constexpr bool execute_slot(const slot_type<Sig>& s) noexcept
+    {
+        return true;
+    }
 };
 
 struct std_signal_traits
@@ -62,6 +68,12 @@ struct std_signal_traits
                                        const handle_type<Slot>& h) noexcept
     {
         c[h] = nullptr;
+    }
+
+    template<typename Sig>
+    static constexpr bool execute_slot(const slot_type<Sig>& s) noexcept
+    {
+        return s != nullptr;
     }
 };
 

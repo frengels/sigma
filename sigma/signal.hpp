@@ -122,6 +122,11 @@ public:
 
         for (auto& slot : m_slots)
         {
+            if (!traits_type::execute_slot(slot))
+            {
+                continue;
+            }
+
             if constexpr (std::is_nothrow_invocable_v<slot_type, Args&&...>)
             {
                 std::invoke(slot, std::forward<Args>(args)...);
