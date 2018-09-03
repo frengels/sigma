@@ -4,6 +4,8 @@
 
 namespace sigma
 {
+class connection;
+
 class disconnector_base : std::enable_shared_from_this<disconnector_base> {
 protected:
     disconnector_base() = default;

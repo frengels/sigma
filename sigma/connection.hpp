@@ -5,6 +5,7 @@
 
 #include <memory>
 
+#include "sigma/disconnector.hpp"
 #include "sigma/handle_vector.hpp"
 
 namespace sigma
@@ -36,8 +37,20 @@ public:
     connection(connection&&) noexcept = default;
     connection& operator=(connection&&) noexcept = default;
 
-    bool alive() const noexcept;
-    void disconnect() noexcept(false);
+    bool alive() const noexcept
+    {
+        return !m_disconnector.expired();
+    }
+    void disconnect() noexcept(false)
+    {
+        auto d = m_disconnector.lock();
+
+        if (d)
+        {
+            // attempt disconnect
+            (*d)(*this);
+        }
+    }
 
 private:
     inline handle_type handle() const noexcept
