@@ -18,25 +18,6 @@
 
 namespace sigma
 {
-template<bool Nothrow, typename Signature>
-struct signal_traits;
-
-template<bool Nothrow, typename Ret, typename... Args>
-struct signal_traits<Nothrow, Ret(Args...)>
-{
-    static constexpr bool is_nothrow = Nothrow;
-
-    using return_type = Ret;
-
-    using _base_signature_type = return_type(Args...);
-
-    // read as sigma::function_ref<return_type(Args...) noexcept(is_nothrow)>
-    using slot_type = sigma::function_ref<
-        std::conditional_t<is_nothrow,
-                           sigma::add_signature_nothrow_t<_base_signature_type>,
-                           _base_signature_type>>;
-};
-
 template<typename Signature>
 class signal final {
     static_assert(sigma::is_signature_v<Signature>,
@@ -74,10 +55,12 @@ public:
 
     using return_type    = sigma::signature_return_t<Signature>;
     using signature_type = Signature;
-    using slot_traits = sigma::slot_traits<sigma::function_ref<signature_type>>;
-    using slot_type   = typename slot_traits::slot_type;
-    using container_type = sigma::handle_vector<slot_type>;
-    using mutex_type     = sigma::dummy_mutex;
+    // using slot_type      = sigma::function_ref<signature_type>;
+    using signal_traits  = sigma::default_signal_traits;
+    using slot_type      = typename signal_traits::slot_type<signature_type>;
+    using container_type = typename signal_traits::container_type<slot_type>;
+    // using container_type = sigma::handle_vector<slot_type>;
+    using mutex_type = typename signal_traits::mutex_type;
 
 private:
     container_type m_slots;
@@ -193,6 +176,7 @@ public:
 
     bool connection_alive(const sigma::connection& c) const noexcept
     {
+
         return m_slots.is_valid_handle(c.handle());
     }
 

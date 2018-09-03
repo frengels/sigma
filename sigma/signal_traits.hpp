@@ -5,44 +5,30 @@
 
 #include <functional>
 
+#include "sigma/dummy_mutex.hpp"
 #include "sigma/function_ref.hpp"
 
 namespace sigma
 {
-template<typename...>
-struct slot_traits;
 
-template<typename Sig>
-struct slot_traits<sigma::function_ref<Sig>>
+struct default_signal_traits
 {
-    using slot_type = sigma::function_ref<Sig>;
+    template<typename T>
+    using slot_type = sigma::function_ref<T>;
+    template<typename T>
+    using container_type = sigma::handle_vector<T>;
+    template<typename T>
+    using handle_type = typename container_type<T>::handle_type;
+    using mutex_type  = sigma::dummy_mutex;
 
-    template<typename... Args>
-    static constexpr std::
-        enable_if_t<std::is_constructible_v<slot_type, Args&&...>, slot_type>
-        create(Args&&... args) noexcept(
-            std::is_nothrow_constructible_v<slot_type, Args&&...>)
+    template<typename T>
+    static constexpr bool validate_handle(const container_type<T>& c,
+                                          const handle_type<T>&    h) noexcept
     {
-        return sigma::function_ref<Sig>(std::forward<Args>(args)...);
-    }
-
-    template<auto Fn, typename T>
-    static constexpr std::enable_if_t<
-        (sigma::is_member_function_pointer_v<decltype(Fn)> ||
-         sigma::is_function_v<decltype(Fn)>) &&!std::is_rvalue_reference_v<T&&>,
-        slot_type>
-    create(T&& obj) noexcept
-    {
-        return slot_type::bind<Fn>(std::forward<T>(obj));
+        return c.is_valid_handle(h);
     }
 };
 
-/*
-struct signal_traits
-{
-    using slot_traits = slot_traits
-};
-*/
 } // namespace sigma
 
 #endif
