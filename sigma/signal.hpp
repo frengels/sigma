@@ -14,6 +14,7 @@
 #include "sigma/function_ref.hpp"
 #include "sigma/handle_vector.hpp"
 #include "sigma/result.hpp"
+#include "sigma/signal_traits.hpp"
 
 namespace sigma
 {
@@ -73,7 +74,8 @@ public:
 
     using return_type    = sigma::signature_return_t<Signature>;
     using signature_type = Signature;
-    using slot_type      = sigma::function_ref<signature_type>;
+    using slot_traits = sigma::slot_traits<sigma::function_ref<signature_type>>;
+    using slot_type   = typename slot_traits::slot_type;
     using container_type = sigma::handle_vector<slot_type>;
     using mutex_type     = sigma::dummy_mutex;
 
