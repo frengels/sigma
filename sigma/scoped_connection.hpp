@@ -7,15 +7,20 @@
 
 namespace sigma
 {
+template<typename H>
 class scoped_connection {
+public:
+    using handle_type     = H;
+    using connection_type = sigma::connection<handle_type>;
+
 private:
-    sigma::connection m_con;
+    connection_type m_con;
 
 public:
     /**
      * move to indicate we are transferring ownership to this object
      */
-    scoped_connection(connection&& c) : m_con{std::move(c)}
+    scoped_connection(connection_type&& c) : m_con{std::move(c)}
     {}
 
     scoped_connection(const scoped_connection&) noexcept = delete;

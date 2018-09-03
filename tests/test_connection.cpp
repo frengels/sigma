@@ -179,7 +179,7 @@ TEST_CASE("Connections")
         int    i = 0;
         simple obj{&i};
 
-        auto conn = std::invoke([&]() -> sigma::connection {
+        auto conn = std::invoke([&]() {
             sigma::signal<void(int)> sig;
             auto                     ret = sig.connect(
                 sigma::function_ref<void(int)>::bind<&simple::add>(obj));

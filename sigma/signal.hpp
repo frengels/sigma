@@ -33,7 +33,17 @@ class signal final {
                   "Signature cannot have rvalue qualifier");
 
 public:
-    struct disconnector : public sigma::disconnector_base
+    using return_type    = sigma::signature_return_t<Signature>;
+    using signature_type = Signature;
+    // using slot_type      = sigma::function_ref<signature_type>;
+    using traits_type    = sigma::default_signal_traits;
+    using slot_type      = typename traits_type::slot_type<signature_type>;
+    using container_type = typename traits_type::container_type<slot_type>;
+    using handle_type    = typename traits_type::handle_type<slot_type>;
+    // using container_type = sigma::handle_vector<slot_type>;
+    using mutex_type = typename traits_type::mutex_type;
+
+    struct disconnector : public sigma::disconnector_base<handle_type>
     {
     private:
         std::reference_wrapper<sigma::signal<Signature>> m_signal;
@@ -42,25 +52,17 @@ public:
         disconnector(sigma::signal<Signature>& signal) : m_signal{signal}
         {}
 
-        bool is_alive(const connection& conn) const noexcept override
+        bool is_alive(const connection<handle_type>& conn) const
+            noexcept override
         {
             return m_signal.get().connection_alive(conn);
         }
 
-        void operator()(sigma::connection& c) override
+        void operator()(sigma::connection<handle_type>& c) override
         {
             m_signal.get().disconnect(c);
         }
     };
-
-    using return_type    = sigma::signature_return_t<Signature>;
-    using signature_type = Signature;
-    // using slot_type      = sigma::function_ref<signature_type>;
-    using traits_type    = sigma::default_signal_traits;
-    using slot_type      = typename traits_type::slot_type<signature_type>;
-    using container_type = typename traits_type::container_type<slot_type>;
-    // using container_type = sigma::handle_vector<slot_type>;
-    using mutex_type = typename traits_type::mutex_type;
 
 private:
     container_type m_slots;
@@ -160,21 +162,20 @@ public:
     }
 
     template<typename... Args>
-    sigma::connection connect(Args&&... args)
+    sigma::connection<handle_type> connect(Args&&... args)
     {
-        static_assert(
-            std::is_constructible_v<typename container_type::value_type,
-                                    Args&&...>,
-            "Cannot construct function_ref from Args...");
+        static_assert(std::is_constructible_v<slot_type, Args&&...>,
+                      "Cannot construct slot from Args...");
         std::lock_guard lock{m_mutex};
 
         auto idx    = std::size(m_slots);
         auto handle = m_slots.emplace_back(std::forward<Args>(args)...);
 
-        return sigma::connection{m_disconnector, handle};
+        return sigma::connection<handle_type>{m_disconnector, handle};
     }
 
-    bool connection_alive(const sigma::connection& c) const noexcept
+    bool connection_alive(const sigma::connection<handle_type>& c) const
+        noexcept
     {
         std::lock_guard lock{m_mutex};
         return traits_type::validate_handle<slot_type>(m_slots, c.handle());
@@ -184,7 +185,7 @@ public:
      * usually there's no need to call this function directly, disconnection
      * should be done through the connection's disconnect function
      */
-    void disconnect(sigma::connection& c)
+    void disconnect(sigma::connection<handle_type>& c)
     {
         std::lock_guard lock{m_mutex};
         traits_type::erase_handle<slot_type>(m_slots, c.handle());

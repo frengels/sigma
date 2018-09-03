@@ -4,35 +4,64 @@
 #pragma once
 
 #include <functional>
+#include <mutex>
+#include <vector>
 
 #include "sigma/dummy_mutex.hpp"
 #include "sigma/function_ref.hpp"
+#include "sigma/handle_vector.hpp"
 
 namespace sigma
 {
 
 struct default_signal_traits
 {
-    template<typename T>
-    using slot_type = sigma::function_ref<T>;
-    template<typename T>
-    using container_type = sigma::handle_vector<T>;
-    template<typename T>
-    using handle_type = typename container_type<T>::handle_type;
+    template<typename Sig>
+    using slot_type = sigma::function_ref<Sig>;
+    template<typename Slot>
+    using container_type = sigma::handle_vector<Slot>;
+    template<typename Slot>
+    using handle_type = typename container_type<Slot>::handle_type;
     using mutex_type  = sigma::dummy_mutex;
 
-    template<typename T>
-    static constexpr bool validate_handle(const container_type<T>& c,
-                                          const handle_type<T>&    h) noexcept
+    template<typename Slot>
+    static constexpr bool validate_handle(const container_type<Slot>& c,
+                                          const handle_type<Slot>& h) noexcept
     {
         return c.is_valid_handle(h);
     }
 
-    template<typename T>
-    static constexpr void erase_handle(container_type<T>&    c,
-                                       const handle_type<T>& h) noexcept(false)
+    template<typename Slot>
+    static constexpr void
+    erase_handle(container_type<Slot>&    c,
+                 const handle_type<Slot>& h) noexcept(false)
     {
         return c.erase(h);
+    }
+};
+
+struct std_signal_traits
+{
+    template<typename Sig>
+    using slot_type = std::function<Sig>;
+    template<typename Slot>
+    using container_type = std::vector<Slot>;
+    template<typename Slot>
+    using handle_type = typename container_type<Slot>::size_type;
+    using mutex_type  = std::mutex;
+
+    template<typename Slot>
+    static constexpr bool validate_handle(const container_type<Slot>& c,
+                                          const handle_type<Slot>& h) noexcept
+    {
+        return bool(c[h]);
+    }
+
+    template<typename Slot>
+    static constexpr void erase_handle(container_type<Slot>&    c,
+                                       const handle_type<Slot>& h) noexcept
+    {
+        c[h] = nullptr;
     }
 };
 

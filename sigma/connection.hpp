@@ -10,23 +10,23 @@
 
 namespace sigma
 {
-class disconnector_base;
-
+template<typename H>
 class connection {
 public:
     template<typename Sig>
     friend class signal;
 
-    using handle_type = sigma::vector_handle;
+    using handle_type = H;
 
 private:
-    std::weak_ptr<sigma::disconnector_base> m_disconnector;
-    handle_type                             m_handle;
+    std::weak_ptr<sigma::disconnector_base<handle_type>> m_disconnector;
+    handle_type                                          m_handle;
     // some weak reference to the signal_base : std_enable_shared_from_this
 private:
     // a connection can only be created by the signal
-    connection(const std::weak_ptr<sigma::disconnector_base>& disconnector,
-               const sigma::vector_handle                     handle)
+    connection(const std::weak_ptr<sigma::disconnector_base<handle_type>>&
+                                  disconnector,
+               const handle_type& handle)
         : m_disconnector{disconnector}, m_handle{handle}
     {}
 
