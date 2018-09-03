@@ -115,8 +115,8 @@ public:
     template<typename... Args,
              typename = std::enable_if_t<
                  std::is_invocable_r_v<return_type, slot_type, Args&&...>>>
-    void operator()(Args&&... args) noexcept(
-        std::is_nothrow_invocable_v<slot_type, Args&&...>)
+    void operator()(Args&&... args) noexcept(noexcept(
+        std::invoke(std::declval<slot_type>(), std::forward<Args>(args)...)))
     {
         std::lock_guard lock{m_mutex};
 
@@ -148,7 +148,7 @@ public:
     template<typename... Args,
              typename = std::enable_if_t<!std::is_same_v<void, return_type>>>
     std::vector<sigma::result<return_type, slot_type::is_nothrow>>
-    emit_accumulate(Args&&... args)
+    emit_accumulate(Args&&... args) noexcept
     {
         std::vector<sigma::result<return_type, slot_type::is_nothrow>>
             accumulator;
@@ -167,33 +167,35 @@ public:
     }
 
     template<typename... Args>
-    sigma::connection<handle_type> connect(Args&&... args)
+    sigma::connection<handle_type> connect(Args&&... args) noexcept(noexcept(
+        traits_type::emplace_slot(m_slots, std::forward<Args>(args)...)))
     {
         static_assert(std::is_constructible_v<slot_type, Args&&...>,
                       "Cannot construct slot from Args...");
         std::lock_guard lock{m_mutex};
 
-        auto idx    = std::size(m_slots);
-        auto handle = m_slots.emplace_back(std::forward<Args>(args)...);
+        auto handle =
+            traits_type::emplace_slot(m_slots, std::forward<Args>(args)...);
 
         return sigma::connection<handle_type>{m_disconnector, handle};
     }
 
     bool connection_alive(const sigma::connection<handle_type>& c) const
-        noexcept
+        noexcept(noexcept(traits_type::validate_handle(m_slots, c.handle())))
     {
         std::lock_guard lock{m_mutex};
-        return traits_type::validate_handle<slot_type>(m_slots, c.handle());
+        return traits_type::validate_handle(m_slots, c.handle());
     }
 
     /**
      * usually there's no need to call this function directly, disconnection
      * should be done through the connection's disconnect function
      */
-    void disconnect(sigma::connection<handle_type>& c)
+    void disconnect(sigma::connection<handle_type>& c) noexcept(
+        noexcept(traits_type::erase_handle(m_slots, c.handle())))
     {
         std::lock_guard lock{m_mutex};
-        traits_type::erase_handle<slot_type>(m_slots, c.handle());
+        traits_type::erase_handle(m_slots, c.handle());
     }
 };
 } // namespace sigma

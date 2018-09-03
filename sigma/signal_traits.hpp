@@ -39,6 +39,14 @@ struct default_signal_traits
         return c.erase(h);
     }
 
+    template<typename Sig, typename... Args>
+    static constexpr handle_type<slot_type<Sig>>
+    emplace_slot(container_type<slot_type<Sig>>& c, Args&&... args) noexcept
+    {
+        auto handle = c.emplace_back(std::forward<Args>(args)...);
+        return handle;
+    }
+
     template<typename Sig>
     static constexpr bool execute_slot(const slot_type<Sig>& s) noexcept
     {
