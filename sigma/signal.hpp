@@ -56,11 +56,11 @@ public:
     using return_type    = sigma::signature_return_t<Signature>;
     using signature_type = Signature;
     // using slot_type      = sigma::function_ref<signature_type>;
-    using signal_traits  = sigma::default_signal_traits;
-    using slot_type      = typename signal_traits::slot_type<signature_type>;
-    using container_type = typename signal_traits::container_type<slot_type>;
+    using traits_type    = sigma::default_signal_traits;
+    using slot_type      = typename traits_type::slot_type<signature_type>;
+    using container_type = typename traits_type::container_type<slot_type>;
     // using container_type = sigma::handle_vector<slot_type>;
-    using mutex_type = typename signal_traits::mutex_type;
+    using mutex_type = typename traits_type::mutex_type;
 
 private:
     container_type m_slots;
@@ -176,8 +176,7 @@ public:
 
     bool connection_alive(const sigma::connection& c) const noexcept
     {
-
-        return m_slots.is_valid_handle(c.handle());
+        return traits_type::validate_handle<slot_type>(m_slots, c.handle());
     }
 
     /**
