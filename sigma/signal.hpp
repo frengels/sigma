@@ -176,6 +176,7 @@ public:
 
     bool connection_alive(const sigma::connection& c) const noexcept
     {
+        std::lock_guard lock{m_mutex};
         return traits_type::validate_handle<slot_type>(m_slots, c.handle());
     }
 
@@ -186,7 +187,7 @@ public:
     void disconnect(sigma::connection& c)
     {
         std::lock_guard lock{m_mutex};
-        m_slots.erase(c.m_handle);
+        traits_type::erase_handle<slot_type>(m_slots, c.handle());
     }
 };
 } // namespace sigma

@@ -27,6 +27,13 @@ struct default_signal_traits
     {
         return c.is_valid_handle(h);
     }
+
+    template<typename T>
+    static constexpr void erase_handle(container_type<T>&    c,
+                                       const handle_type<T>& h) noexcept(false)
+    {
+        return c.erase(h);
+    }
 };
 
 } // namespace sigma
