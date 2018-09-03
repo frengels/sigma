@@ -146,7 +146,8 @@ public:
 
         auto internal_id = std::size(m_values);
         m_values.emplace_back(std::forward<Args>(args)...);
-        auto external_handle = next_handle(internal_id);
+        auto external_handle =
+            next_handle(static_cast<handle_type::id_type>(internal_id));
         // store our handle referencing back to the handle list
         m_back_ref.push_back(external_handle.id);
         return external_handle;
