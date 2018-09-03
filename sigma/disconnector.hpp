@@ -16,6 +16,7 @@ public:
         return weak_from_this();
     }
 
-    virtual void operator()(connection& c) = 0;
+    virtual bool is_alive(const connection& c) const noexcept = 0;
+    virtual void operator()(connection& c)                    = 0;
 };
 } // namespace sigma

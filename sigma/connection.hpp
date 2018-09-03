@@ -37,10 +37,23 @@ public:
     connection(connection&&) noexcept = default;
     connection& operator=(connection&&) noexcept = default;
 
+    operator bool() const noexcept
+    {
+        return alive();
+    }
+
     bool alive() const noexcept
     {
-        return !m_disconnector.expired();
+        auto disc = m_disconnector.lock();
+
+        if (disc)
+        {
+            return disc->is_alive(*this);
+        }
+
+        return false;
     }
+
     void disconnect() noexcept(false)
     {
         auto d = m_disconnector.lock();

@@ -60,6 +60,11 @@ public:
         disconnector(sigma::signal<Signature>& signal) : m_signal{signal}
         {}
 
+        bool is_alive(const connection& conn) const noexcept override
+        {
+            return m_signal.get().connection_alive(conn);
+        }
+
         void operator()(sigma::connection& c) override
         {
             m_signal.get().disconnect(c);
@@ -182,6 +187,11 @@ public:
         auto handle = m_slots.emplace_back(std::forward<Args>(args)...);
 
         return sigma::connection{m_disconnector, handle};
+    }
+
+    bool connection_alive(const sigma::connection& c) const noexcept
+    {
+        return m_slots.is_valid_handle(c.handle());
     }
 
     /**

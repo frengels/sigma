@@ -165,7 +165,9 @@ TEST_CASE("Connections")
         test(5);
         CHECK(i == 5);
 
+        CHECK(conn.alive());
         conn.disconnect();
+        CHECK(!conn.alive());
         CHECK_THROWS_AS(conn.disconnect(), sigma::bad_handle_access);
 
         test(5);
