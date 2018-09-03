@@ -1,0 +1,36 @@
+clone_folder: c:\projects\sigma
+image: Visual Studio 2017
+configuration:
+- Release
+- Debug
+platform:
+- x64
+
+matrix:
+  fast_finish: true
+
+init:
+- if "%platform%"=="x64" (set generator="Visual Studio 15 2017 Win64")
+- if "%platform%"=="x64" (set arch=x64)
+- echo %platform%
+- echo %arch%
+- echo %APPVEYOR_BUILD_WORKER_IMAGE%
+- echo %generator%
+
+cache: c:\tools\vcpkg\installed
+
+before_build:
+- vcpkg install catch2:%arch%-windows boost-container:%arch%-windows
+- mkdir build
+- cd build
+- cmake --version
+- cmake -DCMAKE_TOOLCHAIN_FILE=c:\tools\vcpkg\scripts\buildsystems\vcpkg.cmake -G %generator% ..
+
+build:
+  project: c:\projects\sigma\build\Sigma.sln
+  verbosity: minimal
+  parallel: true
+
+test_script:
+- cd c:\projects\sigma\build
+- ctest -C %configuration%
