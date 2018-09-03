@@ -25,8 +25,9 @@ struct default_signal_traits
     using mutex_type  = sigma::dummy_mutex;
 
     template<typename Slot>
-    static constexpr bool validate_handle(const container_type<Slot>& c,
-                                          const handle_type<Slot>& h) noexcept
+    static constexpr bool validate_handle(
+        const container_type<Slot>& c,
+        const handle_type<Slot>&    h) noexcept(noexcept(c.is_valid_handle(h)))
     {
         return c.is_valid_handle(h);
     }
@@ -34,14 +35,15 @@ struct default_signal_traits
     template<typename Slot>
     static constexpr void
     erase_handle(container_type<Slot>&    c,
-                 const handle_type<Slot>& h) noexcept(false)
+                 const handle_type<Slot>& h) noexcept(noexcept(c.erase(h)))
     {
         return c.erase(h);
     }
 
     template<typename Sig, typename... Args>
     static constexpr handle_type<slot_type<Sig>>
-    emplace_slot(container_type<slot_type<Sig>>& c, Args&&... args) noexcept
+    emplace_slot(container_type<slot_type<Sig>>& c, Args&&... args) noexcept(
+        noexcept(c.emplace_back(std::forward<Args>(args)...)))
     {
         auto handle = c.emplace_back(std::forward<Args>(args)...);
         return handle;
@@ -76,6 +78,22 @@ struct std_signal_traits
                                        const handle_type<Slot>& h) noexcept
     {
         c[h] = nullptr;
+    }
+
+    template<typename Sig, typename... Args>
+    static constexpr handle_type<slot_type<Sig>>
+    emplace_slot(container_type<slot_type<Sig>>& c, Args&&... args) noexcept(
+        noexcept(std::function<Sig>{std::forward<Args>(args)...}))
+    {
+        for (auto it = c.begin(); it != c.end(); ++it)
+        {
+            if (!(*it))
+            {
+                *it         = std::function<Sig>{std::forward<Args>(args)...};
+                auto handle = std::distance(c.begin(), it);
+                return static_cast<handle_type<slot_type<Sig>>>(handle);
+            }
+        }
     }
 
     template<typename Sig>
