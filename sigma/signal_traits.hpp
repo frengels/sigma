@@ -24,6 +24,23 @@ struct default_signal_traits
     using handle_type = typename container_type<Slot>::handle_type;
     using mutex_type  = sigma::dummy_mutex;
 
+    template<typename Signature>
+    static constexpr bool valid_signature()
+    {
+        static_assert(sigma::is_signature_v<Signature>,
+                      "Provided Signature is not a valid function signature");
+        static_assert(!sigma::is_signature_const_v<Signature>,
+                      "Signature cannot have const qualifier");
+        static_assert(!sigma::is_signature_volatile_v<Signature>,
+                      "Signature cannot have volatile qualifier");
+        static_assert(!sigma::is_signature_lvalue_v<Signature>,
+                      "Signature cannot have lvalue qualifier");
+        static_assert(!sigma::is_signature_rvalue_v<Signature>,
+                      "Signature cannot have rvalue qualifier");
+
+        return true;
+    }
+
     template<typename Slot>
     static constexpr bool validate_handle(
         const container_type<Slot>& c,
@@ -65,6 +82,25 @@ struct std_signal_traits
     template<typename Slot>
     using handle_type = typename container_type<Slot>::size_type;
     using mutex_type  = std::mutex;
+
+    template<typename Signature>
+    static constexpr bool valid_signature()
+    {
+        static_assert(sigma::is_signature_v<Signature>,
+                      "Provided Signature is not a valid function signature");
+        static_assert(!sigma::is_signature_const_v<Signature>,
+                      "Signature cannot have const qualifier");
+        static_assert(!sigma::is_signature_volatile_v<Signature>,
+                      "Signature cannot have volatile qualifier");
+        static_assert(!sigma::is_signature_lvalue_v<Signature>,
+                      "Signature cannot have lvalue qualifier");
+        static_assert(!sigma::is_signature_rvalue_v<Signature>,
+                      "Signature cannot have rvalue qualifier");
+        static_assert(!sigma::is_signature_nothrow_v<Signature>,
+                      "Signature cannot have nothrow qualifier");
+
+        return true;
+    }
 
     template<typename Slot>
     static constexpr bool validate_handle(const container_type<Slot>& c,

@@ -13,8 +13,8 @@ namespace sigma
 template<typename H>
 class connection {
 public:
-    template<typename Sig>
-    friend class signal;
+    template<typename Traits, typename Sig>
+    friend class signal_type;
 
     using handle_type = H;
 

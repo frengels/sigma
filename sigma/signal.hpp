@@ -18,38 +18,31 @@
 
 namespace sigma
 {
-template<typename Signature>
-class signal final {
-    static_assert(sigma::is_signature_v<Signature>,
-                  "Provided Signature is not a valid function signature");
-
-    static_assert(!sigma::is_signature_const_v<Signature>,
-                  "Signature cannot have const qualifier");
-    static_assert(!sigma::is_signature_volatile_v<Signature>,
-                  "Signature cannot have volatile qualifier");
-    static_assert(!sigma::is_signature_lvalue_v<Signature>,
-                  "Signature cannot have lvalue qualifier");
-    static_assert(!sigma::is_signature_rvalue_v<Signature>,
-                  "Signature cannot have rvalue qualifier");
+template<typename Traits, typename Signature>
+class signal_type final {
+    static_assert(Traits::template valid_signature<Signature>(),
+                  "This traits type does not accept this function signature");
 
 public:
     using return_type    = sigma::signature_return_t<Signature>;
     using signature_type = Signature;
     // using slot_type      = sigma::function_ref<signature_type>;
-    using traits_type    = sigma::default_signal_traits;
-    using slot_type      = typename traits_type::slot_type<signature_type>;
-    using container_type = typename traits_type::container_type<slot_type>;
-    using handle_type    = typename traits_type::handle_type<slot_type>;
+    using traits_type = Traits;
+    using slot_type = typename traits_type::template slot_type<signature_type>;
+    using container_type =
+        typename traits_type::template container_type<slot_type>;
+    using handle_type = typename traits_type::template handle_type<slot_type>;
     // using container_type = sigma::handle_vector<slot_type>;
     using mutex_type = typename traits_type::mutex_type;
 
     struct disconnector : public sigma::disconnector_base<handle_type>
     {
     private:
-        std::reference_wrapper<sigma::signal<Signature>> m_signal;
+        std::reference_wrapper<sigma::signal_type<Traits, Signature>> m_signal;
 
     public:
-        disconnector(sigma::signal<Signature>& signal) : m_signal{signal}
+        disconnector(sigma::signal_type<Traits, Signature>& signal)
+            : m_signal{signal}
         {}
 
         bool is_alive(const connection<handle_type>& conn) const
@@ -71,7 +64,7 @@ private:
     std::shared_ptr<disconnector> m_disconnector;
 
 public:
-    signal() : m_disconnector{std::make_shared<disconnector>(*this)}
+    signal_type() : m_disconnector{std::make_shared<disconnector>(*this)}
     {}
 
     /**
@@ -115,8 +108,7 @@ public:
     template<typename... Args,
              typename = std::enable_if_t<
                  std::is_invocable_r_v<return_type, slot_type, Args&&...>>>
-    void operator()(Args&&... args) noexcept(noexcept(
-        std::invoke(std::declval<slot_type>(), std::forward<Args>(args)...)))
+    void operator()(Args&&... args) noexcept
     {
         std::lock_guard lock{m_mutex};
 
@@ -145,12 +137,17 @@ public:
         }
     }
 
-    template<typename... Args,
-             typename = std::enable_if_t<!std::is_same_v<void, return_type>>>
-    std::vector<sigma::result<return_type, slot_type::is_nothrow>>
+    template<typename... Args>
+    std::vector<
+        sigma::result<return_type,
+                      std::is_nothrow_invocable_v<slot_type, Args&&...>>>
     emit_accumulate(Args&&... args) noexcept
     {
-        std::vector<sigma::result<return_type, slot_type::is_nothrow>>
+        static_assert(!std::is_same_v<void, return_type>,
+                      "Function returns void, no point accumulating results");
+        std::vector<
+            sigma::result<return_type,
+                          std::is_nothrow_invocable_v<slot_type, Args&&...>>>
             accumulator;
         accumulator.reserve(std::size(m_slots));
 
@@ -198,6 +195,9 @@ public:
         traits_type::erase_handle(m_slots, c.handle());
     }
 };
+
+template<typename Signature>
+using signal = signal_type<sigma::default_signal_traits, Signature>;
 } // namespace sigma
 
 #endif
