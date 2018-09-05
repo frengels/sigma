@@ -11,7 +11,7 @@
 namespace sigma
 {
 template<typename H>
-class connection {
+class connection_type {
 public:
     template<typename Traits, typename Sig>
     friend class signal_type;
@@ -24,18 +24,18 @@ private:
     // some weak reference to the signal_base : std_enable_shared_from_this
 private:
     // a connection can only be created by the signal
-    connection(const std::weak_ptr<sigma::disconnector_base<handle_type>>&
-                                  disconnector,
-               const handle_type& handle)
+    connection_type(const std::weak_ptr<sigma::disconnector_base<handle_type>>&
+                                       disconnector,
+                    const handle_type& handle)
         : m_disconnector{disconnector}, m_handle{handle}
     {}
 
 public:
-    connection(const connection&) noexcept = default;
-    connection& operator=(const connection&) noexcept = default;
+    connection_type(const connection_type&) noexcept = default;
+    connection_type& operator=(const connection_type&) noexcept = default;
 
-    connection(connection&&) noexcept = default;
-    connection& operator=(connection&&) noexcept = default;
+    connection_type(connection_type&&) noexcept = default;
+    connection_type& operator=(connection_type&&) noexcept = default;
 
     operator bool() const noexcept
     {

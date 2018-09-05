@@ -35,6 +35,8 @@ public:
     // using container_type = sigma::handle_vector<slot_type>;
     using mutex_type = typename traits_type::mutex_type;
 
+    using connection_type = sigma::connection_type<handle_type>;
+
     struct disconnector : public sigma::disconnector_base<handle_type>
     {
     private:
@@ -45,13 +47,12 @@ public:
             : m_signal{signal}
         {}
 
-        bool is_alive(const connection<handle_type>& conn) const
-            noexcept override
+        bool is_alive(const connection_type& conn) const noexcept override
         {
             return m_signal.get().connection_alive(conn);
         }
 
-        void operator()(sigma::connection<handle_type>& c) override
+        void operator()(connection_type& c) override
         {
             m_signal.get().disconnect(c);
         }
@@ -164,8 +165,9 @@ public:
     }
 
     template<typename... Args>
-    sigma::connection<handle_type> connect(Args&&... args) noexcept(noexcept(
-        traits_type::emplace_slot(m_slots, std::forward<Args>(args)...)))
+    sigma::connection_type<handle_type> connect(Args&&... args) noexcept(
+        noexcept(traits_type::emplace_slot(m_slots,
+                                           std::forward<Args>(args)...)))
     {
         static_assert(std::is_constructible_v<slot_type, Args&&...>,
                       "Cannot construct slot from Args...");
@@ -174,10 +176,10 @@ public:
         auto handle =
             traits_type::emplace_slot(m_slots, std::forward<Args>(args)...);
 
-        return sigma::connection<handle_type>{m_disconnector, handle};
+        return connection_type{m_disconnector, handle};
     }
 
-    bool connection_alive(const sigma::connection<handle_type>& c) const
+    bool connection_alive(const connection_type& c) const
         noexcept(noexcept(traits_type::validate_handle(m_slots, c.handle())))
     {
         std::lock_guard lock{m_mutex};
@@ -188,7 +190,7 @@ public:
      * usually there's no need to call this function directly, disconnection
      * should be done through the connection's disconnect function
      */
-    void disconnect(sigma::connection<handle_type>& c) noexcept(
+    void disconnect(connection_type& c) noexcept(
         noexcept(traits_type::erase_handle(m_slots, c.handle())))
     {
         std::lock_guard lock{m_mutex};

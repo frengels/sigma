@@ -11,7 +11,7 @@ template<typename H>
 class scoped_connection {
 public:
     using handle_type     = H;
-    using connection_type = sigma::connection<handle_type>;
+    using connection_type = sigma::connection_type<handle_type>;
 
 private:
     connection_type m_con;
@@ -23,6 +23,9 @@ public:
     scoped_connection(connection_type&& c) : m_con{std::move(c)}
     {}
 
+    /**
+     * scoped_connection is not copyable as it guarantees unique ownership
+     */
     scoped_connection(const scoped_connection&) noexcept = delete;
     scoped_connection& operator=(const scoped_connection&) noexcept = delete;
 
