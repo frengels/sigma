@@ -118,6 +118,14 @@ struct function_ref_traits<Nothrow, Ret(Args...)>
         decayed_T& instance = *static_cast<decayed_T*>(obj);
         return std::invoke(MemFn, instance, std::forward<Args>(args)...);
     }
+
+    template<typename F>
+    static constexpr return_type call_lambda(void* l,
+                                             Args... args) noexcept(is_nothrow)
+    {
+        F& lambda_fn = *reinterpret_cast<F*>(&l);
+        lambda_fn(std::forward<Args>(args)...);
+    }
 };
 
 template<typename Signature>
@@ -184,6 +192,15 @@ public:
         : m_instance{reinterpret_cast<void*>(fn_ptr)},
           m_callback{&traits_type::call_fn_ptr}
     {}
+
+    template<
+        typename F,
+        typename = std::enable_if<(sizeof(F) < sizeof(decltype(m_instance)))>>
+    constexpr function_ref(F&& lambda) noexcept
+        : m_instance{nullptr}, m_callback{&traits_type::template call_lambda<F>}
+    {
+        new (&m_instance) F(std::move(lambda));
+    }
 
     /**
      * copy constructors
@@ -273,7 +290,8 @@ public:
                                              T&&,
                                              typename traits::parameter_list> &&
                      !is_nothrow),
-                "member function pointer is not invocable or does not satisfy "
+                "member function pointer is not invocable or "
+                "does not satisfy "
                 "the nothrow qualifier");
         }
         else

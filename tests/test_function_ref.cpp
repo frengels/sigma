@@ -171,6 +171,14 @@ TEST_CASE("function_ref")
         bind_object(5, 1.0, 1.0f);
 
         CHECK(i == 5);
+
+        sigma::function_ref<void(int, double, float)> bind_lambda =
+            sigma::function_ref<void(int, double, float)>(
+                [&](int i, double d, float f) { o.func(i, d, f); });
+
+        bind_lambda(5, 1.0, 1.0f);
+
+        CHECK(i == 10);
     }
 
     SECTION("void return"){
